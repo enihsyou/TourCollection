@@ -1,8 +1,10 @@
-public class BTree<K extends Comparable<K>, V> implements BST<K, V> {
+import java.util.ArrayList;
+
+public class BTree {
     /**
      * A B-Tree is defined by the term minimum degree ‘t’.
      */
-    final static private int DEGREE = 3;
+    final static private int DEGREE = 2;
     /**
      * Every node except root must contain at least t-1 keys. Root may contain minimum 1 key.
      */
@@ -12,75 +14,113 @@ public class BTree<K extends Comparable<K>, V> implements BST<K, V> {
      */
     final static private int UPPER_BOUND = DEGREE * 2 - 1;
 
-    private BNode<K, V> root;
+    BNode root;
     private int height;
     private int count;
 
     public BTree() {
-        root = new BNode<>();
+        // root = new BNode();
     }
+    //
+    // void findElement(final Integer key) {
+    //     root.findInNode(key);
+    // }
 
-    @Override
-    public int size() {
-        return 0;
-    }
-
-    @Override
-    public int height() {
-        return 0;
-    }
-
-    @Override
-    public V get(final K key) {
-        return null;
-    }
-
-    @Override
-    public void put(final K key, final V value) {
-
-    }
-
-    @Override
-    public V search(final K k) {
-        return null;
-    }
-
-    final static private class BNode<K extends Comparable, V> {
-        private int memberCount;
-        private Array<Entry<K, V>> nodes = new Array<>(UPPER_BOUND);
-        private Array<BNode<K, V>> children = new Array<>(UPPER_BOUND + 1);
-
-        boolean isLeaf() {
-            return memberCount == 0;
-        }
-
-        BNode<K, V> getChildAt(final int keyIndex, Direction direction) {
-            if (isLeaf()) { return null; }
-            int next_index = keyIndex + direction.gap;
-            if (next_index < 0 || next_index > memberCount) { return null; }
-            return children.get(next_index);
-        }
-
-        BNode<K, V> getRightChild(final int keyIndex) {
-            return getChildAt(keyIndex, Direction.RIGHT);
-        }
-
-        BNode<K, V> getLeftChild(final int keyIndex) {
-            return getChildAt(keyIndex, Direction.LEFT);
-        }
-
-        enum Direction {
-            RIGHT(1), LEFT(-1);
-            final int gap;
-
-            Direction(final int gap) {
-                this.gap = gap;
+    void insertElement(final Integer key) {
+        if (root == null){
+            root = new BNode();
+            root.keys.put(key);
+            height++;
+        }else {
+            if (root.keys.length() >= UPPER_BOUND){
+                final Pair split = root.split(DEGREE);
+                final Integer item = split.a;
+                final BNode second = split.b;
+                BNode old_root = this.root;
+                root = new BNode();
+                root.keys.put(item);
+                root.children.add(old_root);
+                root.children.add(second);
             }
         }
+        Integer insert = root.insert(key);
+        if (insert == null) height++;
     }
 
-    final static private class Entry<K extends Comparable, V> {
-        private K key;
-        private V value;
+
+    final class BNode {
+        final private Array<Integer> keys = new Array<>(UPPER_BOUND);
+        final private ArrayList<BNode> children = new ArrayList<>(UPPER_BOUND + 1);
+        BNode parent;
+        boolean isLeaf = true;
+        private int memberCount = 0;
+
+        Pair split(int index) {
+            final Integer item = keys.get(index);
+            final BNode next = new BNode();
+            for (int i = index + 1; i < memberCount; i++) {
+                next.keys.put(keys.get(i));
+            }
+            keys.truncate(index);
+            if (children.size() > 0) {
+                for (int i = index + 1; i < memberCount; i++) {
+                    next.children.add(children.get(i));
+                }
+                for (int i = index + 1; i < memberCount; i++) {
+                    children.remove(i);
+                }
+
+            }
+            return new Pair(item, next);
+        }
+
+        boolean maybeSplitChild(int index) {
+            if (children.get(index).keys.length() < UPPER_BOUND) { return false; }
+            final BNode first = children.get(index);
+            final Pair split = first.split(DEGREE);
+            final Integer item = split.a;
+            final BNode second = split.b;
+            keys.insertAt(index, item);
+            children.add(index + 1, second);
+            return true;
+        }
+
+        Integer insert(Integer item) {
+            final Array.SearchResult searchResult = keys.find(item);
+            int i = searchResult.getPosition();
+            if (searchResult.isFound()) {
+                final Integer integer = keys.get(i);
+                keys.replace(i, item);
+                return integer;
+            }
+            if (children.size() == 0) {
+                keys.insertAt(i, item);
+                return null;
+            }
+            if (maybeSplitChild(i)) {
+                final Integer in_tree = keys.get(i);
+                switch (in_tree.compareTo(item)) {
+                    case 1:
+                        return children.get(i).insert(item);
+                    case 0:
+                        final Integer integer = keys.get(i);
+                        keys.replace(i, item);
+                        return integer;
+                    case -1:
+                        return children.get(i + 1).insert(item);
+                }
+            }
+            return children.get(i).insert(item);
+        }
+    }
+}
+
+class Pair {
+    Integer a;
+    BTree.BNode b;
+
+    public Pair(final Integer a, final BTree.BNode b) {
+        this.a = a;
+        this.b = b;
     }
 }

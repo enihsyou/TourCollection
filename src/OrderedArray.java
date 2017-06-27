@@ -1,12 +1,12 @@
+import java.util.Arrays;
+
 /**
  * 固定大小的数组，为避免泛型数组的错误
  * 内部由小到大排列
- *
- * @param <T> 存储类型
  */
 @SuppressWarnings("unchecked")
-public class Array<T extends Comparable> {
-    final private Comparable[] elementData;
+public class OrderedArray {
+    final private Integer [] elementData;
     /**
      * 固定大小
      */
@@ -16,35 +16,13 @@ public class Array<T extends Comparable> {
      */
     private int length;
 
-    public Array(final int size) {
+    public OrderedArray(final int size) {
         this.size = size;
-        elementData = new Comparable[size];
+        elementData = new Integer[size];
     }
 
-    public int length() {
-        return length;
-    }
+    public static void main(String[] args) {
 
-    public T get(final int index) {
-        rangeCheck(index);
-        //noinspection unchecked
-        return (T) elementData[index];
-    }
-
-    private void rangeCheck(final int index) {
-        if (index >= length || index < 0) { throw new IndexOutOfBoundsException(); }
-    }
-public void insertAt(final int index, final T item){
-    for (int i = size - 1; i >index; i--) {
-        elementData[i] = elementData[i - 1];
-    }elementData[index] = item;
-    length++;
-}
-    public void truncate(final int index) {
-        for (int i = index; i < length; i++) {
-            elementData[i] = null;
-            length--;
-        }
     }
 
     /**
@@ -52,18 +30,45 @@ public void insertAt(final int index, final T item){
      *
      * @param item 插入元素
      */
-    public void put(final T item) {
+    public void put(final Integer item) {
         if (length == size) { throw new IndexOutOfBoundsException(); }
         elementData[length++] = item;
+        Arrays.sort(elementData, (o1, o2) -> {
+            if (o1 == null && o2 == null) {
+                return 0;
+            }
+            if (o1 == null) {
+                return 1;
+            }
+            if (o2 == null) {
+                return -1;
+            }
+            return o1.compareTo(o2);
+        });
+    }
+
+    public int length() {
+        return length;
+    }
+
+    public void truncate(final int index) {
+        for (int i = index; i < length; i++) {
+            elementData[i] = null;
+            length--;
+        }
     }
 
     private void rangeCheckPut(final int index) {
         if (index > length || index < 0) { throw new IndexOutOfBoundsException(); }
     }
 
-    public void replace(final int index, T item) {
+    public void replace(final int index, Integer item) {
         rangeCheck(index);
         elementData[index] = item;
+    }
+
+    private void rangeCheck(final int index) {
+        if (index >= length || index < 0) { throw new IndexOutOfBoundsException(); }
     }
 
     /**
@@ -78,7 +83,19 @@ public void insertAt(final int index, final T item){
         }
     }
 
-    public SearchResult find(final T key) {
+    public Integer get(final int index) {
+        rangeCheck(index);
+        //noinspection unchecked
+        return (Integer) elementData[index];
+    }
+
+    /**
+     * 搜索键，如果找到found为true，没找到返回由小变大的索引号
+     * @param key
+     *
+     * @return
+     */
+    public SearchResult find(final Integer key) {
         int i = 0;
         // 找到第一个大于等于键值的位置
         while (i < length && elementData[i].compareTo(key) < 0) { i++; }
@@ -102,9 +119,5 @@ public void insertAt(final int index, final T item){
         public boolean isFound() {
             return found;
         }
-    }
-
-    public static void main(String[] args) {
-
     }
 }
