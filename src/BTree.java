@@ -1,52 +1,76 @@
 public class BTree {
     /**
-     * A B-Tree is defined by the term minimum degree ‘t’.
+     * 一棵B-Tree节点度数
      */
-    final static private int DEGREE = 2;
+    static private int DEGREE = 2;
     /**
-     * Every node except root must contain at least t-1 keys. Root may contain minimum 1 key.
+     * 除根节点外，每个节点都至少包含的键数
      */
-    final static private int LOWER_BOUND = DEGREE - 1;
+    static private int LOWER_BOUND = DEGREE - 1;
     /**
-     * All nodes (including root) may contain at most 2t – 1 keys.
+     * 包括根节点在内的所有节点，都至多包含的键数
      */
-    final static private int UPPER_BOUND = DEGREE * 2 - 1;
+    static private int UPPER_BOUND = DEGREE * 2 - 1;
 
-    BNode root;
-    private int height;
+    private BNode root;
     private int count;
 
-    public BTree() {
-        // root = new BNode();
-    }
-    //
-    // void findElement(final Integer key) {
-    //     root.findInNode(key);
-    // }
+    public BTree() { }
 
+    public BTree(final int degree) {
+        if (degree < 2) throw new IllegalArgumentException("B-Tree的节点度数至少为2");
+        DEGREE = degree;
+        LOWER_BOUND = degree - 1;
+        UPPER_BOUND = degree * 2 - 1;
+    }
+
+    /**
+     * 搜索树上的节点，查询键对应的值，查询失败返回null，查询键不能为null
+     *
+     * @param key 搜索的键
+     *
+     * @return 搜索结果，失败返回null
+     */
+    Integer get(final Integer key) {
+        if (key == null)
+            throw new NullPointerException("查询建不能为null");
+        return root.get(key);
+    }
+
+    /**
+     * 在树中插入元素，如果已存在则替换原有的元素
+     * @param key 插入的键
+     */
     void insertOrReplaceElement(final Integer key) {
-        if (key == null) {
-            throw new NullPointerException();
-        }
+        if (key == null)
+            throw new NullPointerException("键不能为null");
+        /*当前为空树*/
         if (root == null) {
             root = new BNode();
             root.keys.append(key);
             count++;
             return;
         }
+        /*根节点已满*/
         else if (root.keys.length() >= UPPER_BOUND) {
-            final Pair split_result = root.split(UPPER_BOUND / 2);
+            final SplitResult split_result = root.split(UPPER_BOUND / 2);
             BNode old_root = this.root;
             root = new BNode();
-            root.keys.append(split_result.a);
+            root.keys.append(split_result.grow_up_key);
             root.children.append(old_root);
-            root.children.append(split_result.b);
+            root.children.append(split_result.new_child_node);
         }
-
+        /*分裂完后重新尝试插入*/
         Integer insert = root.insert(key);
         if (insert == null) { count++; }
     }
 
+    /**
+     * 从树中删除键，如果不存在则什么也不做
+     * @param key 要删除的键
+     *
+     * @return 被删除的键值，操作失败则为null
+     */
     Integer delete(Integer key) {return deleteItem(key, removeType.REMOVE_ITEM);}
 
     private Integer deleteItem(Integer key, removeType remove_type) {
@@ -69,7 +93,7 @@ public class BTree {
         final private Array<Integer> keys = new ComparableArray<>(UPPER_BOUND);
         final private Array<BNode> children = new ListArray<>(UPPER_BOUND + 1);
 
-        Pair split(int index) {
+        SplitResult split(int index) {
             final Integer item = this.keys.get(index);
             final BNode next = new BNode();
             next.keys.append(this.keys, index + 1);
@@ -78,7 +102,7 @@ public class BTree {
                 next.children.append(this.children, index + 1);
                 this.children.truncate(index + 1);
             }
-            return new Pair(item, next);
+            return new SplitResult(item, next);
         }
 
         boolean maybeSplitChild(int index) {
@@ -86,9 +110,9 @@ public class BTree {
                 return false;
             }
             final BNode first = children.get(index);
-            final Pair split_result = first.split(UPPER_BOUND / 2);
-            keys.insertAt(index, split_result.a);
-            children.insertAt(index + 1, split_result.b);
+            final SplitResult split_result = first.split(UPPER_BOUND / 2);
+            keys.insertAt(index, split_result.grow_up_key);
+            children.insertAt(index + 1, split_result.new_child_node);
             return true;
         }
 
@@ -213,14 +237,16 @@ public class BTree {
 
 
     }
-}
 
-class Pair {
-    Integer a;
-    BTree.BNode b;
+    static class SplitResult {
+        Integer grow_up_key;
+        BTree.BNode new_child_node;
 
-    public Pair(final Integer a, final BTree.BNode b) {
-        this.a = a;
-        this.b = b;
+        public SplitResult(final Integer grow_up_key, final BTree.BNode new_child_node) {
+            this.grow_up_key = grow_up_key;
+            this.new_child_node = new_child_node;
+        }
     }
 }
+
+
