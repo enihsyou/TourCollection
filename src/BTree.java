@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 public class BTree {
     /**
      * A B-Tree is defined by the term minimum degree ‘t’.
@@ -26,74 +24,68 @@ public class BTree {
     //     root.findInNode(key);
     // }
 
-    void insertElement(final Integer key) {
-        if (root == null){
-            root = new BNode();
-            root.keys.put(key);
-            height++;
-        }else {
-            if (root.keys.length() >= UPPER_BOUND){
-                final Pair split = root.split(DEGREE);
-                final Integer item = split.a;
-                final BNode second = split.b;
-                BNode old_root = this.root;
-                root = new BNode();
-                root.keys.put(item);
-                root.children.add(old_root);
-                root.children.add(second);
-            }
+    void insertOrReplaceElement(final Integer key) {
+        if (key == null) {
+            throw new NullPointerException();
         }
+        if (root == null) {
+            root = new BNode();
+            root.keys.append(key);
+            count++;
+            return;
+        } else if (root.keys.length() >= UPPER_BOUND) {
+            final Pair split_result = root.split(UPPER_BOUND / 2);
+            BNode old_root = this.root;
+            root = new BNode();
+            root.keys.append(split_result.a);
+            root.children.append(old_root);
+            root.children.append(split_result.b);
+        }
+
         Integer insert = root.insert(key);
-        if (insert == null) height++;
+        if (insert == null) count++;
     }
 
 
     final class BNode {
-        final private Array<Integer> keys = new Array<>(UPPER_BOUND);
-        final private ArrayList<BNode> children = new ArrayList<>(UPPER_BOUND + 1);
+        final private Array<Integer> keys = new ComparableArray<>(UPPER_BOUND);
+        final private Array<BNode> children = new ListArray<>(UPPER_BOUND + 1);
         BNode parent;
         boolean isLeaf = true;
-        private int memberCount = 0;
+        private int memberCount;
 
         Pair split(int index) {
-            final Integer item = keys.get(index);
+            final Integer item = this.keys.get(index);
             final BNode next = new BNode();
-            for (int i = index + 1; i < memberCount; i++) {
-                next.keys.put(keys.get(i));
-            }
-            keys.truncate(index);
-            if (children.size() > 0) {
-                for (int i = index + 1; i < memberCount; i++) {
-                    next.children.add(children.get(i));
-                }
-                for (int i = index + 1; i < memberCount; i++) {
-                    children.remove(i);
-                }
-
+            next.keys.append(this.keys, index + 1);
+            this.keys.truncate(index);
+            if (this.children.length() > 0) {
+                next.children.append(this.children, index + 1);
+                this.children.truncate(index + 1);
             }
             return new Pair(item, next);
         }
 
         boolean maybeSplitChild(int index) {
-            if (children.get(index).keys.length() < UPPER_BOUND) { return false; }
+            if (children.get(index).keys.length() < UPPER_BOUND) {
+                return false;
+            }
             final BNode first = children.get(index);
-            final Pair split = first.split(DEGREE);
-            final Integer item = split.a;
-            final BNode second = split.b;
-            keys.insertAt(index, item);
-            children.add(index + 1, second);
+            final Pair split_result = first.split(UPPER_BOUND / 2);
+            keys.insertAt(index, split_result.a);
+            children.insertAt(index + 1, split_result.b);
             return true;
         }
 
         Integer insert(Integer item) {
-            final Array.SearchResult searchResult = keys.find(item);
-            int i = searchResult.getPosition();
-            if (searchResult.isFound()) {
-                final Integer integer = keys.get(i);
+            final ComparableArray.SearchResult searchResult = keys.find(item);
+            final int i = searchResult.getPosition();
+            if (searchResult.isFound()) { // replace
+                final Integer original_value = keys.get(i);
                 keys.replace(i, item);
-                return integer;
+                return original_value;
             }
-            if (children.size() == 0) {
+            if (children.length() == 0) {
                 keys.insertAt(i, item);
                 return null;
             }
@@ -102,12 +94,12 @@ public class BTree {
                 switch (in_tree.compareTo(item)) {
                     case 1:
                         return children.get(i).insert(item);
+                    case -1:
+                        return children.get(i + 1).insert(item);
                     case 0:
                         final Integer integer = keys.get(i);
                         keys.replace(i, item);
                         return integer;
-                    case -1:
-                        return children.get(i + 1).insert(item);
                 }
             }
             return children.get(i).insert(item);
