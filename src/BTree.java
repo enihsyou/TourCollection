@@ -33,7 +33,8 @@ public class BTree {
             root.keys.append(key);
             count++;
             return;
-        } else if (root.keys.length() >= UPPER_BOUND) {
+        }
+        else if (root.keys.length() >= UPPER_BOUND) {
             final Pair split_result = root.split(UPPER_BOUND / 2);
             BNode old_root = this.root;
             root = new BNode();
@@ -43,16 +44,30 @@ public class BTree {
         }
 
         Integer insert = root.insert(key);
-        if (insert == null) count++;
+        if (insert == null) { count++; }
     }
 
+    Integer delete(Integer key) {return deleteItem(key, removeType.REMOVE_ITEM);}
 
-    final class BNode {
+    private Integer deleteItem(Integer key, removeType remove_type) {
+        if (root == null || root.keys.length() == 0) { return null; }
+        Integer result = root.remove(key, remove_type);
+        if (root.keys.length() == 0 && root.children.length() > 0) {
+            BNode old_root = this.root;
+            root = root.children.get(0);
+            // old_root.freeNode();
+        }
+        if (result != null) { count--; }
+        return result;
+    }
+
+    enum removeType {
+        REMOVE_MAX, REMOVE_MIN, REMOVE_ITEM
+    }
+
+    final static class BNode {
         final private Array<Integer> keys = new ComparableArray<>(UPPER_BOUND);
         final private Array<BNode> children = new ListArray<>(UPPER_BOUND + 1);
-        BNode parent;
-        boolean isLeaf = true;
-        private int memberCount;
 
         Pair split(int index) {
             final Integer item = this.keys.get(index);
@@ -104,6 +119,99 @@ public class BTree {
             }
             return children.get(i).insert(item);
         }
+
+        Integer get(Integer key) {
+            Array.SearchResult searchResult = keys.find(key);
+            if (searchResult.isFound()) {
+                return keys.get(searchResult.getPosition());
+            }
+            else if (children.length() > 0) {
+                return children.get(searchResult.getPosition()).get(key);
+            }
+            return null;
+        }
+
+        Integer min() {
+            BNode bNode = this;
+            while (bNode.children.length() > 0) { bNode = bNode.children.get(0); }
+            if (bNode.keys.length() == 0) { return null; }
+            return bNode.keys.get(0);
+        }
+
+        Integer max() {
+            BNode bNode = this;
+            while (bNode.children.length() > 0) { bNode = bNode.children.get(bNode.children.length() - 1); }
+            if (bNode.keys.length() == 0) { return null; }
+            return bNode.keys.get(bNode.keys.length() - 1);
+        }
+
+        Integer remove(Integer key, removeType remove_type) {
+            int i = -1;
+            boolean is_found = false;
+            switch (remove_type) {
+                case REMOVE_MAX:
+                    if (children.length() == 0) { return keys.pop(); }
+                    i = keys.length();
+                    break;
+                case REMOVE_MIN:
+                    if (children.length() == 0) { return keys.removeAt(0); }
+                    i = 0;
+                    break;
+                case REMOVE_ITEM:
+                    Array.SearchResult searchResult = keys.find(key);
+                    i = searchResult.getPosition();
+                    is_found = searchResult.isFound();
+                    if (children.length() == 0) { return is_found ? keys.removeAt(i) : null; }
+                    break;
+            }
+            BNode child = children.get(i);
+            if (child.keys.length() <= LOWER_BOUND) { return growChildAndRemove(i, key, remove_type); }
+            if (is_found) {
+                Integer result = keys.get(i);
+                keys.replace(i, child.remove(null, removeType.REMOVE_MAX));
+                return result;
+            }
+            return child.remove(key, remove_type);
+        }
+
+        Integer growChildAndRemove(int i, Integer item, removeType remove_type) {
+            BNode child = children.get(i);
+            if (i > 0 && children.get(i - 1).keys.length() > LOWER_BOUND) {
+                BNode steal_from = children.get(i - 1);
+                Integer stolen_item = steal_from.keys.pop();
+                child.keys.insertAt(0, keys.get(i - 1));
+                keys.replace(i - 1, stolen_item);
+                if (steal_from.children.length() > 0) { child.children.insertAt(0, steal_from.children.pop()); }
+            }
+            else if (i > 0 && children.get(i + 1).keys.length() > LOWER_BOUND) {
+                BNode steal_from = children.get(i + 1);
+                Integer stolen_item = steal_from.keys.removeAt(0);
+                child.keys.append(keys.get(i));
+                keys.replace(i, stolen_item);
+                if (steal_from.children.length() > 0) { child.children.append(steal_from.children.removeAt(0)); }
+            }
+            else {
+                if (i >= keys.length()) {
+                    i--;
+                    child = children.get(i);
+                }
+                Integer merge_item = keys.removeAt(i);
+                BNode merge_child = children.removeAt(i + 1);
+                child.keys.append(merge_item);
+                child.keys.append(merge_child.keys, 0);
+                child.children.append(merge_child.children, 0);
+
+                // freeNode();
+            }
+            return remove(item, remove_type);
+        }
+
+        private void freeNode() {
+            keys.truncate(0);
+            children.truncate(0);
+        }
+
+
     }
 }
 
