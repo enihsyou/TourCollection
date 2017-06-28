@@ -150,7 +150,7 @@ public class BTree {
             boolean is_found = false;
             switch (remove_type) {
                 case REMOVE_MAX:
-                    if (children.length() == 0) { return keys.pop(); }
+                    if (children.length() == 0) { return keys.popLast(); }
                     i = keys.length();
                     break;
                 case REMOVE_MIN:
@@ -178,10 +178,10 @@ public class BTree {
             BNode child = children.get(i);
             if (i > 0 && children.get(i - 1).keys.length() > LOWER_BOUND) {
                 BNode steal_from = children.get(i - 1);
-                Integer stolen_item = steal_from.keys.pop();
+                Integer stolen_item = steal_from.keys.popLast();
                 child.keys.insertAt(0, keys.get(i - 1));
                 keys.replace(i - 1, stolen_item);
-                if (steal_from.children.length() > 0) { child.children.insertAt(0, steal_from.children.pop()); }
+                if (steal_from.children.length() > 0) { child.children.insertAt(0, steal_from.children.popLast()); }
             }
             else if (i > 0 && children.get(i + 1).keys.length() > LOWER_BOUND) {
                 BNode steal_from = children.get(i + 1);
