@@ -20,7 +20,7 @@ public interface Array<T> {
     T get(final int get_from);
 
     /**
-     * @return 返回第一个元素，不存在的情况下抛出NoSuchElementException
+     * @return 返回第一个元素，不存在的情况下抛出ArrayIndexOutOfBoundsException
      */
     T first();
 
@@ -70,14 +70,14 @@ public interface Array<T> {
     void truncate(final int cut_from);
 
     /**
-     * 移除最后一个元素，列表为空抛出NoSuchElementException
+     * 移除最后一个元素，列表为空抛出ArrayIndexOutOfBoundsException
      *
      * @return 被移除的元素
      */
     T popLast();
 
     /**
-     * 移除第一个元素，列表为空抛出NoSuchElementException
+     * 移除第一个元素，列表为空抛出ArrayIndexOutOfBoundsException
      *
      * @return 被移除的元素
      */

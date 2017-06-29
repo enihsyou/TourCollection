@@ -1,5 +1,3 @@
-import java.util.NoSuchElementException;
-
 @SuppressWarnings("unchecked")
 public class ListArray<T> implements Array<T> {
     final Object[] elementData;
@@ -122,7 +120,7 @@ public class ListArray<T> implements Array<T> {
     public T removeAt(int index) {
         rangeCheck(index);
         if (length == 0) {
-            throw new NoSuchElementException("数组为空");
+            throw new ArrayIndexOutOfBoundsException("数组为空");
         }
         final Object result = elementData[index];
         System.arraycopy(elementData, index + 1, elementData, index, length - 1 - index);

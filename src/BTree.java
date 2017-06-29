@@ -1,4 +1,4 @@
-public class BTree<K extends Comparable<K>, V> {
+public class BTree<K extends Comparable<K>, V> implements Tree<K, V> {
     /**
      * 一棵B-Tree节点度数
      */
@@ -11,7 +11,6 @@ public class BTree<K extends Comparable<K>, V> {
      * 包括根节点在内的所有节点，都至多包含的键数
      */
     static private int UPPER_BOUND = DEGREE * 2 - 1;
-
     private BNode<K, V> root;
     private int count;
 
@@ -28,35 +27,21 @@ public class BTree<K extends Comparable<K>, V> {
         new BTree<K, V>();
     }
 
-    /**
-     * 搜索树上的节点，查询键对应的值，查询失败返回null，查询键不能为null
-     *
-     * @param key 搜索的键
-     * @return 搜索结果，失败返回null
-     */
-    public V get(final K key) {
-        if (key == null)
-            throw new NullPointerException("查询建不能为null");
-        return root.get(key).value;
+    public static int getDEGREE() {
+        return DEGREE;
     }
 
-    /**
-     * 在树中插入元素，如果已存在则替换原有的元素，不允许插入null元素
-     *
-     * @param key 插入的键
-     */
-    public void insertOrReplaceElement(final K key, final V value) {
-        if (key == null)
+    @Override
+    public int elementCount() {
+        return count;
+    }
+
+    @Override
+    public V insertOrReplace(final K insert_key, final V insert_value) {
+        if (insert_key == null)
             throw new NullPointerException("键不能为null");
-        /*当前为空树*/
-        if (root == null) {
-            root = new BNode<>();
-            root.insert(key, value);
-            count++;
-            return;
-        }
         /*根节点已满*/
-        else if (root.keys.length() >= UPPER_BOUND) {
+        if (root.keys.length() >= UPPER_BOUND) {
             final BNode<K, V>.SplitResult split_result = root.split(UPPER_BOUND / 2);
             BNode<K, V> old_root = this.root;
             root = new BNode<>();
@@ -65,31 +50,115 @@ public class BTree<K extends Comparable<K>, V> {
             root.children.append(split_result.new_child_node);
         }
         /*分裂完后重新尝试插入*/
-        BNode<K, V>.NodeItem insert = root.insert(key, value);
+        BNode<K, V>.NodeItem insert = root.insert(insert_key, insert_value);
         if (insert.value == null) {
             count++;
+            return null;
         }
+        return insert.value;
     }
 
-    /**
-     * 从树中删除键，如果不存在则什么也不做
-     *
-     * @param key 要删除的键
-     * @return 被删除的键值，操作失败则为null
-     */
-    public V delete(final K key) {
-        if (key == null) {
+    @Override
+    public V getValue(final K key) {
+        if (key == null)
+            throw new NullPointerException("查询建不能为null");
+        return root.get(key).value;
+    }
+
+    @Override
+    public V delete(final K delete_key) {
+        if (delete_key == null) {
             throw new IllegalArgumentException("删除键不能为null");
         }
-        return deleteItem(key, RemoveType.REMOVE_ITEM);
+        return deleteItem(delete_key, RemoveType.REMOVE_ITEM);
     }
 
-    private V deleteItem(final K key, final RemoveType remove_type) {
+    @Override
+    public V deleteMin() {
+        return deleteItem(null, RemoveType.REMOVE_MIN);
+    }
+
+    @Override
+    public V deleteMax() {
+        return deleteItem(null, RemoveType.REMOVE_MAX);
+    }
+
+    @Override
+    public void preOrderTraverse(final Consumer<TreeNode> method_on_node) {
+
+    }
+
+    @Override
+    public void inOrderTraverse(final Consumer<TreeNode> method_on_node) {
+
+    }
+
+    @Override
+    public void postOrderTraverse(final Consumer<TreeNode> method_on_node) {
+
+    }
+
+    @Override
+    public void ascend(final ItemIterator item_iterator) {
+        root.iterate(null, null, Direction.ASCEND, false, false, item_iterator);
+    }
+
+    @Override
+    public void ascendRange(final K greater_or_equal, final K less_than, final ItemIterator item_iterator) {
+        root.iterate(greater_or_equal, less_than, Direction.ASCEND, true, false, item_iterator);
+    }
+
+    @Override
+    public void ascendLessThan(final K pivot, final ItemIterator item_iterator) {
+        root.iterate(null, pivot, Direction.ASCEND, false, false, item_iterator);
+    }
+
+    @Override
+    public void ascendGreaterOrEqual(final K pivot, final ItemIterator item_iterator) {
+        root.iterate(pivot, null, Direction.ASCEND, true, false, item_iterator);
+    }
+
+    @Override
+    public void descend(final ItemIterator item_iterator) {
+        root.iterate(null, null, Direction.DESCEND, false, false, item_iterator);
+    }
+
+    @Override
+    public void descendRange(final K less_or_equal, final K greater_than, final ItemIterator item_iterator) {
+        root.iterate(less_or_equal, greater_than, Direction.DESCEND, true, false, item_iterator);
+    }
+
+    @Override
+    public void descendGreaterThan(final K pivot, final ItemIterator item_iterator) {
+        root.iterate(null, pivot, Direction.DESCEND, false, false, item_iterator);
+    }
+
+    @Override
+    public void descendLessOrEqual(final K pivot, final ItemIterator item_iterator) {
+        root.iterate(pivot, null, Direction.DESCEND, true, false, item_iterator);
+    }
+
+    @Override
+    public boolean has(final K search_key) {
+        return getValue(search_key) != null;
+    }
+
+    @Override
+    public TreeNodeItem min() {
+        return root.min();
+    }
+
+    @Override
+    public TreeNodeItem max() {
+        return root.max();
+    }
+
+    private V deleteItem(final K delete_key, final RemoveType remove_type) {
         /*空树，什么也不用做*/
         if (root == null || root.keys.length() == 0)
             return null;
         /*先从树中删除元素，包括后续操作*/
-        BNode<K, V>.NodeItem result = root.remove(key, remove_type);/*如果这次删除是成功的，计数器递减*/
+        BNode<K, V>.NodeItem result = root.remove(delete_key, remove_type);/*如果这次删除是成功的，计数器递减*/
         if (result != null)
             count--;
 
@@ -100,15 +169,12 @@ public class BTree<K extends Comparable<K>, V> {
         return result.value;
     }
 
-    public int getCount() {
-        return count;
-    }
 
     public enum RemoveType {
         REMOVE_MAX, REMOVE_MIN, REMOVE_ITEM
     }
 
-    final static class BNode<K extends Comparable<K>, V> {
+    final static class BNode<K extends Comparable<K>, V> extends TreeNode {
         /**
          * 存储元素的键，作为主搜索键
          */
@@ -122,6 +188,7 @@ public class BTree<K extends Comparable<K>, V> {
          * 将当前节点在指定位置分裂成两个节点。当前节点缩小
          *
          * @param index 分割位置
+         *
          * @return 分裂结果，返回一个二元组，第一个是向上浮的元素key，第二个是包含剩余元素的新节点
          */
         private SplitResult split(int index) {
@@ -141,6 +208,7 @@ public class BTree<K extends Comparable<K>, V> {
          * 检查一个子节点是否需要进行split操作，如果需要则进行
          *
          * @param index 预计的分裂位置
+         *
          * @return 是否进行了分裂操作
          */
         private boolean maybeSplitChild(int index) {
@@ -160,6 +228,7 @@ public class BTree<K extends Comparable<K>, V> {
          * 如果指定元素key已存在，将会被替换
          *
          * @param insert_key 插入键
+         *
          * @return 插入位置上原先存放的元素
          */
         NodeItem insert(K insert_key, V insert_value) {
@@ -199,6 +268,7 @@ public class BTree<K extends Comparable<K>, V> {
          * 在当前节点子树中搜索键
          *
          * @param key 搜索的键
+         *
          * @return 键对应的值，搜索失败为null
          */
         NodeItem get(K key) {
@@ -217,8 +287,7 @@ public class BTree<K extends Comparable<K>, V> {
          */
         NodeItem min() {
             BNode<K, V> bNode = this;
-            while (bNode.children.length() > 0)
-                bNode = bNode.children.first();
+            while (bNode.children.length() > 0) { bNode = bNode.children.first(); }
             if (bNode.keys.length() == 0)
                 return null;
             return bNode.keys.first();
@@ -229,8 +298,7 @@ public class BTree<K extends Comparable<K>, V> {
          */
         NodeItem max() {
             BNode<K, V> bNode = this;
-            while (bNode.children.length() > 0)
-                bNode = bNode.children.last();
+            while (bNode.children.length() > 0) { bNode = bNode.children.last(); }
             if (bNode.keys.length() == 0)
                 return null;
             return bNode.keys.last();
@@ -241,6 +309,7 @@ public class BTree<K extends Comparable<K>, V> {
          *
          * @param key         删除的键
          * @param remove_type 删除类型
+         *
          * @return 被移除的元素
          */
         private NodeItem remove(K key, RemoveType remove_type) {
@@ -293,17 +362,18 @@ public class BTree<K extends Comparable<K>, V> {
          * A) 节点有足够的元素，能够禁得起删掉一个
          * B) 节点如果再少一个就不满足 > LOWER_BOUND的限制了
          * 对于B情况，需要检查
-         * a) 左兄弟是否能拿一个过来
-         * b) 有兄弟是否能拿一个过来
+         * hit) 左兄弟是否能拿一个过来
+         * ok) 有兄弟是否能拿一个过来
          * c) 左右都没有，需要进行合并
          * 为了简化代码，把情况1和情况2做相同处理：
-         * 如果一个节点元素不足够多，那就去确保它变得足够多（处理情况a,b,c）
+         * 如果一个节点元素不足够多，那就去确保它变得足够多（处理情况a,ok,c）
          * 然后就可以简化为重新进行remove操作，然后第二次（不论是情况1还是情况2）能够保证有足够多的
          * 元素在节点中了，这样就能保证解决情况A
          *
          * @param i           指定位置
          * @param remove_key  移除元素键
          * @param remove_type 删除类型
+         *
          * @return 移除的元素
          */
         private NodeItem growChildAndRemove(int i, K remove_key, RemoveType remove_type) {
@@ -316,7 +386,8 @@ public class BTree<K extends Comparable<K>, V> {
                 keys.replace(i - 1, stolen_item);
                 if (steal_from.children.length() > 0)
                     child.children.rightShift(steal_from.children.popLast());
-            } else if (i < keys.length() && children.get(i + 1).keys.length() > LOWER_BOUND) {
+            }
+            else if (i < keys.length() && children.get(i + 1).keys.length() > LOWER_BOUND) {
                 /*从有孩子窃取元素*/
                 final BNode<K, V> steal_from = children.get(i + 1);
                 NodeItem stolen_item = steal_from.keys.popFirst();
@@ -325,7 +396,8 @@ public class BTree<K extends Comparable<K>, V> {
                 if (steal_from.children.length() > 0)
                     child.children.append(steal_from.children.popFirst());
 
-            } else {
+            }
+            else {
                 if (i >= keys.length())
                     child = children.get(--i);
                 /*和右孩子合并*/
@@ -338,12 +410,88 @@ public class BTree<K extends Comparable<K>, V> {
             return remove(remove_key, remove_type);
         }
 
+        ResultPair iterate(final K start_key,
+                           final K stop_key,
+                           final Direction direction,
+                           final boolean include_start,
+                           boolean hit,
+                           final ItemIterator item_iterator) {
+            final NodeItem start_search_node = new NodeItem(start_key);
+            final NodeItem stop_search_node = new NodeItem(stop_key);
+            boolean ok;
+            switch (direction) {
+                case ASCEND:
+                    for (int i = 0; i < keys.length(); i++) {
+                        if (start_key != null && keys.get(i).compareTo(start_search_node) < 0)
+                            continue;
+                        if (children.length() > 0) {
+                            final ResultPair pair = children.get(i)
+                                .iterate(start_key, stop_key, direction, include_start, hit, item_iterator);
+                            hit = pair.hit;
+                            ok = pair.ok;
+                            if (!ok)
+                                return new ResultPair(hit, false);
+                        }
+                        if (!include_start &&
+                            !hit &&
+                            start_key != null &&
+                            keys.get(i).compareTo(start_search_node) <= 0) {
+                            hit = true;
+                            continue;
+                        }
+                        hit = true;
+                        if (stop_key != null && keys.get(i).compareTo(stop_search_node) >= 0)
+                            return new ResultPair(true, false);
+                        if (!item_iterator.accept(keys.get(i)))
+                            return new ResultPair(true, false);
+                    }
+                    if (children.length() > 0) {
+                        final ResultPair pair =
+                            children.last().iterate(start_key, stop_key, direction, include_start, hit, item_iterator);
+                        hit = pair.hit;
+                        ok = pair.ok;
+                        if (!ok)
+                            return new ResultPair(hit, false);
+                    }
+                    break;
+                case DESCEND:
+                    for (int i = keys.length() - 1; i >= 0; i--) {
+                        if (start_key != null && start_search_node.compareTo(keys.get(i)) <= 0)
+                            if (!include_start || hit || start_search_node.compareTo(keys.get(i)) < 0)
+                                continue;
+                        if (children.length() > 0) {
+                            final ResultPair pair = children.get(i + 1)
+                                .iterate(start_key, stop_key, direction, include_start, hit, item_iterator);
+                            hit = pair.hit;
+                            ok = pair.ok;
+                            if (!ok)
+                                return new ResultPair(hit, false);
+                        }
+                        if (stop_key != null && keys.get(i).compareTo(stop_search_node) <= 0)
+                            return new ResultPair(hit, false); // 继续
+                        hit = true;
+                        if (!item_iterator.accept(keys.get(i)))
+                            return new ResultPair(true, false);
+                    }
+                    if (children.length() > 0) {
+                        final ResultPair pair =
+                            children.first().iterate(start_key, stop_key, direction, include_start, hit, item_iterator);
+                        hit = pair.hit;
+                        ok = pair.ok;
+                        if (!ok)
+                            return new ResultPair(hit, false);
+                    }
+                    break;
+            }
+            return new ResultPair(hit, true);
+        }
+
         @Override
         public String toString() {
             return keys.toString();
         }
 
-        class NodeItem implements Comparable<NodeItem> {
+        class NodeItem extends TreeNodeItem implements Comparable<NodeItem> {
             K key;
             V value;
 

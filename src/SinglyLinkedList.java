@@ -1,6 +1,3 @@
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 public class SinglyLinkedList<Item> {
     final static private class SinglyNode<T> {
         private SinglyNode<T> nextNode;
@@ -69,16 +66,12 @@ public class SinglyLinkedList<Item> {
         return false;
     }
 
-    public Iterator<Item> iterator() {
-        return new LinkedListIterator();
-    }
-
     public void clear() {
         while (head != null) { remove(); }
     }
 
     public Item remove() {
-        if (head == null) { throw new NoSuchElementException(); }
+        if (head == null) { throw new ArrayIndexOutOfBoundsException(); }
         final Item item = head.getItem();
         head = head.getNextNode();
         count--;
@@ -133,26 +126,5 @@ public class SinglyLinkedList<Item> {
         final Item item = prev.getNextNode().getItem();
         prev.setNextNode(prev.getNextNode().getNextNode());
         return item;
-    }
-
-    private class LinkedListIterator implements Iterator<Item> {
-        private SinglyNode<Item> pointer;
-
-        LinkedListIterator() {
-            pointer = head;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return pointer.getNextNode() != null;
-        }
-
-        @Override
-        public Item next() {
-            if (!hasNext()) { throw new NoSuchElementException(); }
-            final Item item = pointer.getItem();
-            pointer = pointer.getNextNode();
-            return item;
-        }
     }
 }
