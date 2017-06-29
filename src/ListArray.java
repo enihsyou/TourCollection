@@ -32,13 +32,25 @@ public class ListArray<T> implements Array<T> {
         return (T) elementData[get_from];
     }
 
+    @Override
+    public T first() {
+        return get(0);
+    }
+
+    @Override
+    public T last() {
+        return get(length - 1);
+    }
+
     /**
      * 元素索引号合法性判断
      *
      * @param index 元素位置
      */
     private void rangeCheck(final int index) {
-        if (index >= length || index < 0) { throw new ArrayIndexOutOfBoundsException(index); }
+        if (index >= length || index < 0) {
+            throw new ArrayIndexOutOfBoundsException(index);
+        }
     }
 
     @Override
@@ -59,16 +71,25 @@ public class ListArray<T> implements Array<T> {
      * @param index 插入位置
      */
     private void rangeCheck2(final int index) {
-        if (index > length || index < 0) { throw new ArrayIndexOutOfBoundsException(index); }
+        if (index > length || index < 0) {
+            throw new ArrayIndexOutOfBoundsException(index);
+        }
     }
 
     @Override
     public void insertAt(int index, T insert_item) {
         rangeCheck2(index);
-        if (length == ARRAY_SIZE) { throw new ArrayIndexOutOfBoundsException("数组已满"); }
+        if (length == ARRAY_SIZE) {
+            throw new ArrayIndexOutOfBoundsException("数组已满");
+        }
         System.arraycopy(elementData, index, elementData, index + 1, length - index);
         elementData[index] = insert_item;
         length++;
+    }
+
+    @Override
+    public void rightShift(T insert_item) {
+        insertAt(0, insert_item);
     }
 
     @Override
@@ -100,7 +121,9 @@ public class ListArray<T> implements Array<T> {
     @Override
     public T removeAt(int index) {
         rangeCheck(index);
-        if (length == 0) { throw new NoSuchElementException("数组为空"); }
+        if (length == 0) {
+            throw new NoSuchElementException("数组为空");
+        }
         final Object result = elementData[index];
         System.arraycopy(elementData, index + 1, elementData, index, length - 1 - index);
         elementData[--length] = null;
@@ -112,14 +135,20 @@ public class ListArray<T> implements Array<T> {
      * 如果找到getPosition()返回元素索引号，否则返回-1
      *
      * @param search_for 搜索元素
-     *
      * @return 搜索结果
      */
     @Override
-    public SearchResult find(T search_for) {
+    public FindResult find(T search_for) {
         for (int i = 0; i < length; i++) {
-            if (elementData[i] == search_for) { return new SearchResult(i, true); }
+            if (elementData[i] == search_for) {
+                return new FindResult(i, true);
+            }
         }
-        return new SearchResult(-1, false);
+        return new FindResult(-1, false);
+    }
+
+    @Override
+    public String toString() {
+        return makeString(elementData);
     }
 }

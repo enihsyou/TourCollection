@@ -20,16 +20,16 @@ public class ComparableArray<T extends Comparable> extends ListArray<T> {
      *
      * @return 搜索结果
      */
-    public SearchResult find(final T search_for) {
+    public FindResult find(final T search_for) {
         int i = 0;
         // 找到第一个大于等于键值的位置
         while (i < length && ((Comparable)elementData[i]).compareTo(search_for) < 0) {
             i++;
         }
         if (i < length && elementData[i] == search_for) {
-            return new SearchResult(i, true);
+            return new FindResult(i, true);
         }
-        return new SearchResult(i, false);
+        return new FindResult(i, false);
     }
 
     public static void main(String[] args) {

@@ -15,10 +15,19 @@ public interface Array<T> {
      * 获取index位置上的元素，相当于array[i]表达式，越界会抛出ArrayIndexOutOfBoundsException
      *
      * @param get_from 元素位置
-     *
      * @return 位置上的元素
      */
     T get(final int get_from);
+
+    /**
+     * @return 返回第一个元素，不存在的情况下抛出NoSuchElementException
+     */
+    T first();
+
+    /**
+     * @return 返回最后一个元素，不存在的情况下抛出NoSuchElementException
+     */
+    T last();
 
     /**
      * 在列表尾部增加元素，预设还有空位，否则抛出ArrayIndexOutOfBoundsException
@@ -44,6 +53,13 @@ public interface Array<T> {
      * @param insert_item 插入的元素
      */
     void insertAt(final int index, final T insert_item);
+
+    /**
+     * 在第一个位置插入元素
+     *
+     * @param insert_item 要插入的元素
+     */
+    void rightShift(final T insert_item);
 
     /**
      * 从cut_from位置移除元素，切断尾巴
@@ -80,7 +96,6 @@ public interface Array<T> {
      * 把指定位置的元素移除，位置上元素不存在抛出ArrayIndexOutOfBoundsException
      *
      * @param index 移除元素的索引号
-     *
      * @return 被移除的元素
      */
     T removeAt(final int index);
@@ -89,16 +104,15 @@ public interface Array<T> {
      * 搜索指定key
      *
      * @param search_for 搜索元素
-     *
      * @return 搜索结果
      */
-    SearchResult find(final T search_for);
+    FindResult find(final T search_for);
 
-    class SearchResult {
+    class FindResult {
         final private int position;
         final private boolean found;
 
-        SearchResult(final int position, final boolean found) {
+        FindResult(final int position, final boolean found) {
             this.position = position;
             this.found = found;
         }
@@ -110,5 +124,24 @@ public interface Array<T> {
         boolean isFound() {
             return found;
         }
+    }
+
+    default String makeString(Object[] a) {
+        if (a == null)
+            return "null";
+
+        int iMax = a.length - 1;
+        if (iMax == -1)
+            return "[]";
+
+        StringBuilder b = new StringBuilder();
+        b.append('[');
+        for (int i = 0; i <= iMax; i++) {
+            if (a[i] == null)
+                continue;
+            if (b.length() > 1) b.append(", ");
+            b.append(a[i]);
+        }
+        return b.append(']').toString();
     }
 }
