@@ -46,11 +46,13 @@ public interface Tree<K extends Comparable<K>, V> {
      */
     V deleteMax();
 
-    void preOrderTraverse(Consumer<TreeNode> method_on_node);
+    void print();
 
-    void inOrderTraverse(Consumer<TreeNode> method_on_node);
+    void preOrderTraverse(ItemIterator method_on_node);
 
-    void postOrderTraverse(Consumer<TreeNode> method_on_node);
+    void inOrderTraverse(ItemIterator method_on_node);
+
+    void postOrderTraverse(ItemIterator method_on_node);
 
     /**
      * 对每个在[first, last]范围内的元素，调用item_iterator，直到这方法返回false
@@ -144,11 +146,3 @@ public interface Tree<K extends Comparable<K>, V> {
     abstract class TreeNodeItem extends TreeNode { }
 }
 
-class ResultPair {
-    final boolean hit, ok;
-
-    ResultPair(final boolean hit, final boolean ok) {
-        this.hit = hit;
-        this.ok = ok;
-    }
-}

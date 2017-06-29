@@ -31,6 +31,12 @@ public class BTree<K extends Comparable<K>, V> implements Tree<K, V> {
         return DEGREE;
     }
 
+    private static String repeatString(final String s, final int times) {
+        StringBuilder builder = new StringBuilder(s.length() * times);
+        for (int i = 0; i < times; i++) { builder.append(s); }
+        return builder.toString();
+    }
+
     @Override
     public int elementCount() {
         return count;
@@ -84,17 +90,22 @@ public class BTree<K extends Comparable<K>, V> implements Tree<K, V> {
     }
 
     @Override
-    public void preOrderTraverse(final Consumer<TreeNode> method_on_node) {
+    public void print() {
+        root.print(0);
+    }
+
+    @Override
+    public void preOrderTraverse(final ItemIterator method_on_node) {
 
     }
 
     @Override
-    public void inOrderTraverse(final Consumer<TreeNode> method_on_node) {
+    public void inOrderTraverse(final ItemIterator method_on_node) {
 
     }
 
     @Override
-    public void postOrderTraverse(final Consumer<TreeNode> method_on_node) {
+    public void postOrderTraverse(final ItemIterator method_on_node) {
 
     }
 
@@ -168,7 +179,6 @@ public class BTree<K extends Comparable<K>, V> implements Tree<K, V> {
         }
         return result.value;
     }
-
 
     public enum RemoveType {
         REMOVE_MAX, REMOVE_MIN, REMOVE_ITEM
@@ -484,6 +494,13 @@ public class BTree<K extends Comparable<K>, V> implements Tree<K, V> {
                     break;
             }
             return new ResultPair(hit, true);
+        }
+
+        private void print(final int level) {
+            System.out.format("%sNODE:%s\n", repeatString("  ", level), keys);
+            for (int i = 0; i < children.length(); i++) {
+                children.get(i).print(level + 1);
+            }
         }
 
         @Override

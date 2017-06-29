@@ -10,6 +10,17 @@ public class ComparableArray<T extends Comparable> extends ListArray<T> {
         super(array_size);
     }
 
+    public static void main(String[] args) {
+        Array<Integer> array = new ComparableArray<>(4);
+        array.append(1);
+        array.append(2);
+        array.append(3);
+        array.append(4);
+        array.find(3);
+        array.removeAt(0);
+        System.out.println();
+    }
+
     /**
      * 搜索指定key，如果找到则isFound为true，否则为false
      * 不论找到没有，getPosition()都返回第一个不大于search_for的索引号，可以在那个位置进行有序的插入
@@ -23,7 +34,7 @@ public class ComparableArray<T extends Comparable> extends ListArray<T> {
     public FindResult find(final T search_for) {
         int i = 0;
         // 找到第一个大于等于键值的位置
-        while (i < length && ((Comparable)elementData[i]).compareTo(search_for) < 0) {
+        while (i < length && ((Comparable) elementData[i]).compareTo(search_for) < 0) {
             i++;
         }
         if (i < length && elementData[i] == search_for) {
@@ -32,14 +43,8 @@ public class ComparableArray<T extends Comparable> extends ListArray<T> {
         return new FindResult(i, false);
     }
 
-    public static void main(String[] args) {
-        Array<Integer> array = new ComparableArray<>(4);
-        array.append(1);
-        array.append(2);
-        array.append(3);
-        array.append(4);
-        array.find(3);
-        array.removeAt(0);
-        System.out.println();
+    @Override
+    public String toString() {
+        return makeString(elementData);
     }
 }
