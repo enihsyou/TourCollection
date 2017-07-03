@@ -10,7 +10,7 @@ public class GUI {
     final static private String[] COLUMN_NAMES = {"编号", "姓名", "性别", "年龄"};
 
     final private BTree<Tour> tree;
-    final private LinkedList<Tourist> tourists;
+    final private SinglyLinkedList<Tourist> tourists;
     final private DefaultListModel<Tour> tourListModel;
     final private DefaultListModel<Tourist> guestListModel;
     final private DefaultTableModel memberTableModel;
@@ -36,7 +36,7 @@ public class GUI {
     private GUI() {
         /*初始化*/
         tree = new BTree<>(); // 使用B-Tree模型存储数据
-        tourists = new LinkedList<>(); // 保存已注册的用户信息
+        tourists = new SinglyLinkedList<>(); // 保存已注册的用户信息
         tourListModel = new DefaultListModel<>(); // 旅行地点选择列表数据存储结构
         guestListModel = new DefaultListModel<>(); // 游客选择列表数据存储结构
         memberTableModel = new MyDefaultTableModel(); // 参团人员表格数据存储结构

@@ -1,12 +1,11 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
 
 public class CLI {
     final private BufferedReader stream = new BufferedReader(new InputStreamReader(System.in));
     final private BTree<Tour> tree = new BTree<>();
-    final private LinkedList<Tourist> tourists = new LinkedList<>();
+    final private SinglyLinkedList<Tourist> tourists = new SinglyLinkedList<>();
 
     private CLI() {
         tourists.add(new Tourist("001", "a", Gender.FEMALE, 1));
@@ -124,7 +123,7 @@ public class CLI {
             System.err.println("旅客已经加入了");
         } else if (tour.getGuestsCount() >= 6) {
             System.err.format("%s已经超出6人，提供有剩余额度的旅行团\n", tour);
-            LinkedList<Tour> list = new LinkedList<>();
+            SinglyLinkedList<Tour> list = new SinglyLinkedList<>();
             tree.ascend(item -> {
                 if (item.getGuestsCount() < 6)
                     list.add(item);
@@ -169,7 +168,7 @@ public class CLI {
             }
             tree.delete(tour);
 
-            LinkedList<Tour> list = new LinkedList<>();
+            SinglyLinkedList<Tour> list = new SinglyLinkedList<>();
             tree.ascend(item -> {
                 if (item.getGuestsCount() < 6)
                     list.add(item);
@@ -268,8 +267,9 @@ public class CLI {
         return new Tourist(code, name, gender, age);
     }
 
-    private void printMore(final LinkedList<Tour> list) {
-        for (Tour tour : list) {
+    private void printMore(final SinglyLinkedList<Tour> list) {
+        for (int i = 0; i < list.size(); i++) {
+            final Tour tour = list.get(i);
             System.out.format("剩余额度: %d    %s\n", 6 - tour.getGuestsCount(), tour);
         }
     }
