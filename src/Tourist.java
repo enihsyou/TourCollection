@@ -33,7 +33,7 @@ public class Tourist {
 
     @Override
     public String toString() {
-        return String.format("%s，%s，%d岁，编号%s", name, gender, age, code);
+        return String.format("%s %s %d岁 编号%s", name, gender, age, code);
     }
 
     public int getTourCount() {

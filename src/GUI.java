@@ -10,7 +10,7 @@ public class GUI {
     final static private String[] COLUMN_NAMES = {"编号", "姓名", "性别", "年龄"};
 
     final private BTree<Tour> tree;
-    final private LinkedList<Tourist> guests;
+    final private LinkedList<Tourist> tourists;
     final private DefaultListModel<Tour> tourListModel;
     final private DefaultListModel<Tourist> guestListModel;
     final private DefaultTableModel memberTableModel;
@@ -36,10 +36,23 @@ public class GUI {
     private GUI() {
         /*初始化*/
         tree = new BTree<>(); // 使用B-Tree模型存储数据
-        guests = new LinkedList<>(); // 保存已注册的用户信息
+        tourists = new LinkedList<>(); // 保存已注册的用户信息
         tourListModel = new DefaultListModel<>(); // 旅行地点选择列表数据存储结构
         guestListModel = new DefaultListModel<>(); // 游客选择列表数据存储结构
         memberTableModel = new MyDefaultTableModel(); // 参团人员表格数据存储结构
+
+        tourists.add(new Tourist("001", "a", Gender.FEMALE, 1));
+        tourists.add(new Tourist("002", "b", Gender.FEMALE, 2));
+        tourists.add(new Tourist("003", "c", Gender.FEMALE, 3));
+        tourists.add(new Tourist("004", "d", Gender.FEMALE, 4));
+        tourists.add(new Tourist("005", "e", Gender.FEMALE, 5));
+        tourists.add(new Tourist("006", "f", Gender.FEMALE, 6));
+        tourists.add(new Tourist("007", "g", Gender.FEMALE, 7));
+        tourists.add(new Tourist("008", "h", Gender.FEMALE, 8));
+        tree.insertOrReplace(new Tour("A", new Date(1, 2, 3)));
+        tree.insertOrReplace(new Tour("B", new Date(1, 2, 3)));
+        tree.insertOrReplace(new Tour("C", new Date(1, 2, 4)));
+        tree.insertOrReplace(new Tour("D", new Date(1, 2, 5)));
 
         tourList.setModel(tourListModel);
         guestList.setModel(guestListModel);
@@ -147,11 +160,11 @@ public class GUI {
         addGuestButton.addActionListener(e -> {
             final MakeCharacterDialog dialog = new MakeCharacterDialog();
             // 预设置用户编号为当前数量+1
-            dialog.setCodeNumber(String.format("%03d", guests.size() + 1));
+            dialog.setCodeNumber(String.format("%03d", tourists.size() + 1));
             dialog.setJoinListener(who -> {
-                if (guests.contains(who))
+                if (tourists.contains(who))
                     return; // 忽略重复添加
-                guests.add(who); // 增加到记录中
+                tourists.add(who); // 增加到记录中
                 guestListModel.addElement(who); // 增加到列表GUI中
                 updateInformation();
             });
@@ -165,7 +178,7 @@ public class GUI {
             if (tourist.getTourCount() > 0)
                 JOptionPane.showMessageDialog(rootPanel, "当前旅客还有未退出的旅行团，不能移除", "移除失败", JOptionPane.ERROR_MESSAGE);
             else {
-                guests.remove(tourist); // 从记录中删除
+                tourists.remove(tourist); // 从记录中删除
                 guestListModel.removeElement(tourist); // 从GUI列表中移除
             }
         });
@@ -189,7 +202,7 @@ public class GUI {
 
     private void updateInformation() {
         final int place_count = tree.elementCount();
-        final int guest_count = guests.size();
+        final int guest_count = tourists.size();
         groupInformation.setText(String.format("总计%d旅行团；%d游客", place_count, guest_count));
     }
 
