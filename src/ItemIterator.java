@@ -1,4 +1,4 @@
 @FunctionalInterface
-public interface ItemIterator {
-    boolean accept(Tree.TreeNodeItem item);
+public interface ItemIterator<K> {
+    boolean accept(K item);
 }

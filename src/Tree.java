@@ -1,4 +1,6 @@
-public interface Tree<K extends Comparable<K>, V> {
+import java.util.LinkedList;
+
+public interface Tree<K extends Comparable<K>> {
     /**
      * @return 当前树中元素数量
      */
@@ -12,7 +14,7 @@ public interface Tree<K extends Comparable<K>, V> {
      *
      * @return 键原先的值，null或者
      */
-    V insertOrReplace(final K insert_key, final V insert_value);
+    K insertOrReplace(final K insert_key);
 
     /**
      * 搜索树上的节点，查询键对应的值，查询失败返回null，查询键不能为null
@@ -21,7 +23,18 @@ public interface Tree<K extends Comparable<K>, V> {
      *
      * @return 搜索结果，失败返回null
      */
-    V getValue(final K search_key);
+    K getValue(final K search_key);
+
+    /**
+     * 通过搜索键获得节点元素
+     *
+     * @param search_key 搜索的键
+     *
+     * @return 搜索结果，失败返回null
+     */
+    K getNodeItem(final K search_key);
+
+    LinkedList<K> keys(Direction direction);
 
     /**
      * 从树中删除键，如果不存在则什么也不做
@@ -30,36 +43,33 @@ public interface Tree<K extends Comparable<K>, V> {
      *
      * @return 被删除的键值，操作失败则为null
      */
-    V delete(final K delete_key);
+    K delete(final K delete_key);
 
     /**
      * 移除最小元素并返回它，如果不存在这样的最小值，返回null
      *
      * @return 移除的元素
      */
-    V deleteMin();
+    K deleteMin();
 
     /**
      * 移除最大元素并返回它，如果不存在这样的最大值，返回null
      *
      * @return 移除的元素
      */
-    V deleteMax();
+    K deleteMax();
 
+    /**
+     * 按层次打印树
+     */
     void print();
-
-    void preOrderTraverse(ItemIterator method_on_node);
-
-    void inOrderTraverse(ItemIterator method_on_node);
-
-    void postOrderTraverse(ItemIterator method_on_node);
 
     /**
      * 对每个在[first, last]范围内的元素，调用item_iterator，直到这方法返回false
      *
      * @param item_iterator 对元素的操作方法，判断是否继续进行
      */
-    void ascend(final ItemIterator item_iterator);
+    void ascend(final ItemIterator<K> item_iterator);
 
     /**
      * 对每个在[greater_or_equal, less_than)范围内的元素，调用item_iterator，直到这方法返回false
@@ -68,7 +78,7 @@ public interface Tree<K extends Comparable<K>, V> {
      * @param less_than        上限，不包含
      * @param item_iterator    对元素的操作方法，判断是否继续进行
      */
-    void ascendRange(final K greater_or_equal, final K less_than, final ItemIterator item_iterator);
+    void ascendRange(final K greater_or_equal, final K less_than, final ItemIterator<K> item_iterator);
 
     /**
      * 对每个在[first, pivot)范围内的元素，调用item_iterator，直到这方法返回false
@@ -76,7 +86,7 @@ public interface Tree<K extends Comparable<K>, V> {
      * @param pivot         上限，不包含
      * @param item_iterator 对元素的操作方法，判断是否继续进行
      */
-    void ascendLessThan(final K pivot, final ItemIterator item_iterator);
+    void ascendLessThan(final K pivot, final ItemIterator<K> item_iterator);
 
     /**
      * 对每个在[pivot, last]范围内的元素，调用item_iterator，直到这方法返回false
@@ -84,14 +94,14 @@ public interface Tree<K extends Comparable<K>, V> {
      * @param pivot         下限，包含在内
      * @param item_iterator 对元素的操作方法，判断是否继续进行
      */
-    void ascendGreaterOrEqual(final K pivot, final ItemIterator item_iterator);
+    void ascendGreaterOrEqual(final K pivot, final ItemIterator<K> item_iterator);
 
     /**
      * 对每个在[last, first]范围内的元素，调用item_iterator，直到这方法返回false
      *
      * @param item_iterator 对元素的操作方法，判断是否继续进行
      */
-    void descend(final ItemIterator item_iterator);
+    void descend(final ItemIterator<K> item_iterator);
 
     /**
      * 对每个在[less_or_equal, greater_than)范围内的元素，调用item_iterator，直到这方法返回false
@@ -100,7 +110,7 @@ public interface Tree<K extends Comparable<K>, V> {
      * @param greater_than  上限，不包含
      * @param item_iterator 对元素的操作方法，判断是否继续进行
      */
-    void descendRange(final K less_or_equal, final K greater_than, final ItemIterator item_iterator);
+    void descendRange(final K less_or_equal, final K greater_than, final ItemIterator<K> item_iterator);
 
     /**
      * 对每个在(pivot, last]范围内的元素，调用item_iterator，直到这方法返回false
@@ -108,7 +118,7 @@ public interface Tree<K extends Comparable<K>, V> {
      * @param pivot         上限，不包含
      * @param item_iterator 对元素的操作方法，判断是否继续进行
      */
-    void descendGreaterThan(final K pivot, final ItemIterator item_iterator);
+    void descendGreaterThan(final K pivot, final ItemIterator<K> item_iterator);
 
     /**
      * 对每个在[pivot, first]范围内的元素，调用item_iterator，直到这方法返回false
@@ -116,7 +126,7 @@ public interface Tree<K extends Comparable<K>, V> {
      * @param pivot         下限，包含在内
      * @param item_iterator 对元素的操作方法，判断是否继续进行
      */
-    void descendLessOrEqual(final K pivot, final ItemIterator item_iterator);
+    void descendLessOrEqual(final K pivot, final ItemIterator<K> item_iterator);
 
     /**
      * 判断指定键是否在树中存在
@@ -130,19 +140,24 @@ public interface Tree<K extends Comparable<K>, V> {
     /**
      * @return 树中最小元素，如果不存在这样的返回null
      */
-    TreeNodeItem min();
+    K min();
 
     /**
      * @return 树中最大元素，如果不存在这样的返回null
      */
-    TreeNodeItem max();
+    K max();
 
+     K getIndex(final int i);
     enum Direction {
         ASCEND, DESCEND
     }
 
-    abstract class TreeNode { }
+    abstract class TreeNode<K extends Comparable<K>> {
+        abstract K get(final K key);
 
-    abstract class TreeNodeItem extends TreeNode { }
+        abstract K min();
+
+        abstract K max();
+    }
 }
 

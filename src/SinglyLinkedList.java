@@ -1,4 +1,4 @@
-public class SinglyLinkedList<Item> {
+public class SinglyLinkedList<Item>{
     final static private class SinglyNode<T> {
         private SinglyNode<T> nextNode;
         private T item;

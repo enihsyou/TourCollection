@@ -4,8 +4,7 @@
  *
  * @param <T> 存储类型
  */
-@SuppressWarnings("unchecked")
-public class ComparableArray<T extends Comparable> extends ListArray<T> {
+public class ComparableArray<T extends Comparable<T>> extends ListArray<T> {
     public ComparableArray(int array_size) {
         super(array_size);
     }
@@ -31,13 +30,14 @@ public class ComparableArray<T extends Comparable> extends ListArray<T> {
      *
      * @return 搜索结果
      */
+    @SuppressWarnings("unchecked")
     public FindResult find(final T search_for) {
         int i = 0;
         // 找到第一个大于等于键值的位置
-        while (i < length && ((Comparable) elementData[i]).compareTo(search_for) < 0) {
+        while (i < length && ((T) elementData[i]).compareTo(search_for) < 0) {
             i++;
         }
-        if (i < length && elementData[i] == search_for) {
+        if (i < length && ((T) elementData[i]).compareTo(search_for) == 0) {
             return new FindResult(i, true);
         }
         return new FindResult(i, false);
