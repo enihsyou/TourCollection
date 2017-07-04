@@ -29,16 +29,11 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
         root = new BNode();
     }
 
-    public static int getDegree() {
-        return DEGREE;
-    }
-
-    private static String repeatString(final String s, final int times) {
-        StringBuilder builder = new StringBuilder(s.length() * times);
-        for (int i = 0; i < times; i++) {
-            builder.append(s);
-        }
-        return builder.toString();
+    private static String repeatString(final int times) {
+        final char[] chars = new char[times];
+        for (int i = 0; i < times; i++)
+            chars[i] = ' ';
+        return new String(chars);
     }
 
     @Override
@@ -188,9 +183,8 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
             count--;
 
         /*如果删除后 根节点变空了，抓取子节点上来*/
-        if (root.keys.length() == 0 && root.children.length() > 0) {
+        if (root.keys.length() == 0 && root.children.length() > 0)
             root = root.children.get(0);
-        }
         return result;
     }
 
@@ -281,11 +275,12 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
         @Override
         K min() {
             BNode bNode = this;
-            while (bNode.children.length() > 0) {
+            while (bNode.children.length() > 0)
                 bNode = bNode.children.first();
-            }
+
             if (bNode.keys.length() == 0)
                 return null;
+
             return bNode.keys.first();
         }
 
@@ -295,11 +290,12 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
         @Override
         K max() {
             BNode bNode = this;
-            while (bNode.children.length() > 0) {
+            while (bNode.children.length() > 0)
                 bNode = bNode.children.last();
-            }
+
             if (bNode.keys.length() == 0)
                 return null;
+
             return bNode.keys.last();
         }
 
@@ -376,9 +372,9 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
             }
             /*如果到这了，表明节点存在子节点*/
             BNode child = children.get(i);
-            if (child.keys.length() <= LOWER_BOUND) {
+            if (child.keys.length() <= LOWER_BOUND)
                 return growChildAndRemove(i, key, remove_type);
-            }
+
             /*不论我们是否有足够的元素，或者已经做了合并/偷取，因为已经处理完了，可以准备返回元素了*/
             if (is_found) {
                 /*在i位置的元素，以及选择的child能够给我们一个前列，能保证超过LOWER_BOUND个元素在里面*/
@@ -432,7 +428,6 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
                 keys.replace(i, stolen_item);
                 if (steal_from.children.length() > 0)
                     child.children.append(steal_from.children.popFirst());
-
             } else {
                 if (i >= keys.length())
                     child = children.get(--i);
@@ -518,17 +513,15 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
         }
 
         private void print(final int level) {
-            System.out.format("%sNODE:%s\n", repeatString("  ", level), keys);
-            for (int i = 0; i < children.length(); i++) {
+            System.out.format("%sNODE:%s\n", repeatString(2 * level), keys);
+            for (int i = 0; i < children.length(); i++)
                 children.get(i).print(level + 1);
-            }
         }
 
         @Override
         public String toString() {
             return keys.toString();
         }
-
 
         class SplitResult {
             K grow_up_key;

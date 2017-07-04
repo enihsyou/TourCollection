@@ -5,6 +5,8 @@ public class SinglyLinkedList<Item> {
     private int count;
 
     public SinglyLinkedList() {
+        head = null;
+        count = 0;
     }
 
     public static void main(String[] args) {
@@ -20,11 +22,12 @@ public class SinglyLinkedList<Item> {
      * 在头部进行插入，不允许null元素
      *
      * @param item 要插入的元素
+     *
      * @return 是否插入成功
      */
     public boolean add(final Item item) {
         if (item == null) {
-//            throw new NullPointerException();
+            //            throw new NullPointerException();
             return false; // null 插入不允许
         }
         head = new SinglyNode<>(item, head);
@@ -32,24 +35,14 @@ public class SinglyLinkedList<Item> {
         return true;
     }
 
-    public void remove(final Item tourist) {
-        SinglyNode<Item> head = this.head;
-        for (int i = 0; i < count; i++) {
-            if (head.getItem().equals(tourist)) {
-                remove(i);
-                return;
-            }
-            head = head.getNextNode();
-        }
-    }
-
-    public Item remove(final int index) {// TODO: 2017/6/26  check
+    public Item remove(final int index) {
         checkElementIndex(index);
         if (index == 0)
-            popFirst();
+            return popFirst();
         final SinglyNode<Item> prev = node(index - 1);
         final Item item = prev.getNextNode().getItem();
         prev.setNextNode(prev.getNextNode().getNextNode());
+        count--;
         return item;
     }
 
@@ -77,14 +70,25 @@ public class SinglyLinkedList<Item> {
      * 获取第i个节点，确保调用时index存在
      *
      * @param index 第几个
+     *
      * @return 节点
      */
     private SinglyNode<Item> node(final int index) {
         SinglyNode<Item> head = this.head;
-        for (int i = 0; i < index; i++) {
+        for (int i = 0; i < index; i++)
+            head = head.getNextNode();
+        return head;
+    }
+
+    public void remove(final Item tourist) {
+        SinglyNode<Item> head = this.head;
+        for (int i = 0; i < count; i++) {
+            if (head.getItem().equals(tourist)) {
+                remove(i);
+                return;
+            }
             head = head.getNextNode();
         }
-        return head;
     }
 
     public int size() {
@@ -98,26 +102,24 @@ public class SinglyLinkedList<Item> {
     public boolean contains(final Item o) {
         SinglyNode<Item> head = this.head;
         for (int i = 0; i < count; i++) {
-            if (head.getItem().equals(o)) {
+            if (head.getItem().equals(o))
                 return true;
-            }
             head = head.getNextNode();
         }
         return false;
     }
 
     public void clear() {
-        while (head != null) {
+        while (head != null)
             popFirst();
-        }
     }
 
     public int indexOf(final Item item) {
         SinglyNode<Item> head = this.head;
         for (int i = 0; i < count; i++) {
-            if (head.getItem().equals(item)) {
+            if (head.getItem().equals(item))
                 return i;
-            }
+
             head = head.getNextNode();
         }
         return -1;
@@ -159,11 +161,11 @@ public class SinglyLinkedList<Item> {
         StringBuilder b = new StringBuilder();
         b.append('[');
         SinglyNode<Item> node = this.head;
-        for (int i = 0; i <= iMax; i++) {
-            if (node.nextNode == null) {
-                b.append(node.item);
+        b.append(node.item);
+        node = node.nextNode;
+        for (int i = 0; i <= iMax; i++, node = node.nextNode) {
+            if (node == null)
                 return b.append(']').toString();
-            }
             b.append(", ");
             b.append(node.item);
         }

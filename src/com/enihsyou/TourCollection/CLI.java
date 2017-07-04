@@ -5,30 +5,34 @@ import java.io.InputStreamReader;
 
 public class CLI {
     final private BufferedReader stream = new BufferedReader(new InputStreamReader(System.in));
+    // final private Console stream = System.console();
     final private BTree<Tour> tree = new BTree<>();
     final private SinglyLinkedList<Tourist> tourists = new SinglyLinkedList<>();
 
     private CLI() {
-        tourists.add(new Tourist("001", "a", Gender.FEMALE, 1));
-        tourists.add(new Tourist("002", "b", Gender.FEMALE, 2));
-        tourists.add(new Tourist("003", "c", Gender.FEMALE, 3));
-        tourists.add(new Tourist("004", "d", Gender.FEMALE, 4));
-        tourists.add(new Tourist("005", "e", Gender.FEMALE, 5));
-        tourists.add(new Tourist("006", "f", Gender.FEMALE, 6));
-        tourists.add(new Tourist("007", "g", Gender.FEMALE, 7));
-        tourists.add(new Tourist("008", "h", Gender.FEMALE, 8));
+        tourists.add(new Tourist("001", "雨天", Gender.FEMALE, 1));
+        tourists.add(new Tourist("002", "反而更", Gender.FEMALE, 2));
+        tourists.add(new Tourist("003", "个", Gender.FEMALE, 3));
+        tourists.add(new Tourist("004", "衣服放", Gender.FEMALE, 4));
+        tourists.add(new Tourist("005", "把房产税", Gender.FEMALE, 5));
+        tourists.add(new Tourist("006", "内存", Gender.FEMALE, 6));
+        tourists.add(new Tourist("007", "脦", Gender.FEMALE, 7));
+        tourists.add(new Tourist("008", "问题", Gender.FEMALE, 8));
         tree.insertOrReplace(new Tour("北京", new Date(1, 2, 3)));
         tree.insertOrReplace(new Tour("上海", new Date(1, 2, 3)));
         tree.insertOrReplace(new Tour("长春", new Date(1, 2, 4)));
-        tree.insertOrReplace(new Tour("狮子山", new Date(1, 2, 5)));
+        tree.insertOrReplace(new Tour("狮子", new Date(1, 2, 5)));
+        tree.insertOrReplace(new Tour("打脸", new Date(1, 3, 5)));
+        tree.insertOrReplace(new Tour("吉林", new Date(2, 2, 5)));
+        tree.insertOrReplace(new Tour("黄山", new Date(1, 2, 1)));
         printMenu();
         while (true) {
             try {
                 choiceMenu();
             } catch (NumberFormatException ignored) {
                 System.err.println("无法解析的输入");
-            } catch (Exception ignored) {
-                System.err.println("I/O错误出现");
+            } catch (Exception e) {
+                e.printStackTrace();
             } finally {
                 printMenu();
             }
@@ -44,6 +48,7 @@ public class CLI {
         System.out.println("5. 删除旅行团");
         System.out.println("6. 打印状态");
         System.out.println("9. 退出");
+        System.out.println();
     }
 
     private void choiceMenu() throws Exception {
@@ -150,6 +155,7 @@ public class CLI {
      * 游客退团
      * 先指定游客序号再指定旅行团序号，对不存在的序号什么也不做，游客如果不在指定的旅行团里也不做
      * 如果当前旅行团人数小于等于3人，退出会连同旅行团一起删除，给出有剩余额度的旅行团
+     *
      * @throws Exception IOException
      */
     private void leaveGroup() throws Exception {
@@ -162,7 +168,7 @@ public class CLI {
             return;
         }
         final int trip_index = getInteger(() -> {
-            System.out.print("输入要参加的旅行团序号：");
+            System.out.print("输入要退出的旅行团序号：");
             return parseInteger() - 1;
         });
         if (trip_index >= tree.elementCount() || trip_index < 0) {
@@ -195,6 +201,7 @@ public class CLI {
 
     /**
      * 移除旅行团，从树中删除节点，同时把旅客释放
+     *
      * @throws Exception IOException
      */
     private void cancelTour() throws Exception {
@@ -210,14 +217,6 @@ public class CLI {
         removeTour(tree.getIndex(trip_index));
     }
 
-    private void removeTour(Tour tour) {
-        for (int i = 0; i < tour.getGuestsCount(); i++) {
-            final Tourist guest = tour.getGuest(i);
-            guest.removeTour(tour);
-        }
-        tree.delete(tour);
-    }
-
     /**
      * 展示当前状态
      * 先输出内部存储结构，调用自带的print方法
@@ -230,31 +229,34 @@ public class CLI {
         tree.print();
 
         if (tree.elementCount() > 0) {
+            System.out.println();
             System.out.println("旅行团：");
             for (int i = 0; i < tree.elementCount(); i++) {
                 final Tour tour = tree.getIndex(i);
                 if (tour.getGuestsCount() > 0)
                     System.out.println(
-                            String.format("序号%d  %s\n    下列游客已参加：%s\n    共计%d人\n", i + 1, tour, tour.getGuestsString(),
-                                    tour.getGuestsCount()));
+                        String.format("序号%d  %s\n    下列游客已参加：%s\n    共计%d人\n", i + 1, tour, tour.getGuestsString(),
+                            tour.getGuestsCount()));
                 else
                     System.out.format("序号%d  %s\n", i + 1, tour);
             }
         }
 
         if (tourists.size() > 0) {
+            System.out.println();
             System.out.println("旅客：");
             for (int i = 0; i < tourists.size(); i++) {
                 final Tourist tourist = tourists.get(i);
                 if (tourist.getTourCount() > 0)
                     System.out.println(String.format("序号%d  %s\n    已参加下列旅行团：%s\n    共计%d个\n", i + 1, tourist,
-                            tourist.getToursString(), tourist.getTourCount()));
+                        tourist.getToursString(), tourist.getTourCount()));
                 else
                     System.out.format("序号%d  %s\n", i + 1, tourist);
             }
         }
 
         System.out.format("总计旅行团%d；总计旅客%d\n", tree.elementCount(), tourists.size());
+        System.out.println();
     }
 
     private Tour makeTour() throws Exception {
@@ -271,6 +273,7 @@ public class CLI {
      * 输入文本前后的空格会被裁减移除掉
      *
      * @return 新建的Tourist对象
+     *
      * @throws Exception IOException
      */
     private Tourist makeTourist() throws Exception {
@@ -309,6 +312,15 @@ public class CLI {
             final Tour tour = list.get(i);
             System.out.format("剩余额度: %d    %s\n", 6 - tour.getGuestsCount(), tour);
         }
+        System.out.println();
+    }
+
+    private void removeTour(Tour tour) {
+        for (int i = 0; i < tour.getGuestsCount(); i++) {
+            final Tourist guest = tour.getGuest(i);
+            guest.removeTour(tour);
+        }
+        tree.delete(tour);
     }
 
     static private String getString(Produce<String> a) throws Exception {
@@ -319,6 +331,7 @@ public class CLI {
      * 创建日期对象，不对输入值进行检测和纠正
      *
      * @return 新的Date对象
+     *
      * @throws Exception IOException
      */
     private Date makeDate() throws Exception {

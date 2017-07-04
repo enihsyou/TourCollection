@@ -39,7 +39,7 @@ public class Tour implements Comparable<Tour> {
 
     @Override
     public int compareTo(final Tour o) {
-        return java.text.Collator.getInstance().compare(name, o.name);
+        return java.text.Collator.getInstance(java.util.Locale.CHINA).compare(name, o.name);
     }
 
     @Override
