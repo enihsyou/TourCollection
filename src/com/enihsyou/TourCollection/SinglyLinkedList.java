@@ -26,10 +26,10 @@ public class SinglyLinkedList<Item> {
      * @return 是否插入成功
      */
     public boolean add(final Item item) {
-        if (item == null) {
+        if (item == null)
             //            throw new NullPointerException();
             return false; // null 插入不允许
-        }
+
         head = new SinglyNode<>(item, head);
         count++;
         return true;
@@ -40,8 +40,8 @@ public class SinglyLinkedList<Item> {
         if (index == 0)
             return popFirst();
         final SinglyNode<Item> prev = node(index - 1);
-        final Item item = prev.getNextNode().getItem();
-        prev.setNextNode(prev.getNextNode().getNextNode());
+        final Item item = prev.nextNode.item;
+        prev.nextNode = prev.nextNode.nextNode;
         count--;
         return item;
     }
@@ -60,8 +60,8 @@ public class SinglyLinkedList<Item> {
         if (head == null)
             throw new ArrayIndexOutOfBoundsException("链表为空");
 
-        final Item item = head.getItem();
-        head = head.getNextNode();
+        final Item item = head.item;
+        head = head.nextNode;
         count--;
         return item;
     }
@@ -76,19 +76,12 @@ public class SinglyLinkedList<Item> {
     private SinglyNode<Item> node(final int index) {
         SinglyNode<Item> head = this.head;
         for (int i = 0; i < index; i++)
-            head = head.getNextNode();
+            head = head.nextNode;
         return head;
     }
 
-    public void remove(final Item tourist) {
-        SinglyNode<Item> head = this.head;
-        for (int i = 0; i < count; i++) {
-            if (head.getItem().equals(tourist)) {
-                remove(i);
-                return;
-            }
-            head = head.getNextNode();
-        }
+    public void remove(final Item item) {
+        remove(indexOf(item));
     }
 
     public int size() {
@@ -100,13 +93,7 @@ public class SinglyLinkedList<Item> {
     }
 
     public boolean contains(final Item o) {
-        SinglyNode<Item> head = this.head;
-        for (int i = 0; i < count; i++) {
-            if (head.getItem().equals(o))
-                return true;
-            head = head.getNextNode();
-        }
-        return false;
+        return indexOf(o) != -1;
     }
 
     public void clear() {
@@ -117,29 +104,27 @@ public class SinglyLinkedList<Item> {
     public int indexOf(final Item item) {
         SinglyNode<Item> head = this.head;
         for (int i = 0; i < count; i++) {
-            if (head.getItem().equals(item))
+            if (head.item.equals(item))
                 return i;
-
-            head = head.getNextNode();
+            head = head.nextNode;
         }
         return -1;
     }
 
     public Item get(final int index) {
         checkElementIndex(index);
-        return node(index).getItem();
+        return node(index).item;
     }
 
     public void set(final int index, final Item element) {
         checkElementIndex(index);
-        node(index).setItem(element);
+        node(index).item = element;
     }
 
     public void add(final int index, final Item element) {
         checkPositionIndex(index);
         final SinglyNode<Item> prev = node(index - 1);
-        final SinglyNode<Item> new_node = new SinglyNode<>(element, prev.getNextNode());
-        prev.setNextNode(new_node);
+        prev.nextNode = new SinglyNode<>(element, prev.nextNode);
     }
 
     /**
@@ -178,22 +163,6 @@ public class SinglyLinkedList<Item> {
 
         SinglyNode(final T item, final SinglyNode<T> next_node) {
             this.nextNode = next_node;
-            this.item = item;
-        }
-
-        SinglyNode<T> getNextNode() {
-            return nextNode;
-        }
-
-        void setNextNode(final SinglyNode<T> nextNode) {
-            this.nextNode = nextNode;
-        }
-
-        T getItem() {
-            return item;
-        }
-
-        void setItem(final T item) {
             this.item = item;
         }
     }
