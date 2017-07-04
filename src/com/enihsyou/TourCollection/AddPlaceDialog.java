@@ -1,3 +1,5 @@
+package com.enihsyou.TourCollection;
+
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -11,7 +13,7 @@ public class AddPlaceDialog extends JDialog {
     private JTextField yearInput;
     private JTextField monthInput;
     private JTextField dayInput;
-    private AddPlaceListener placeListener;
+    private GUI.AddPlaceListener placeListener;
 
     public AddPlaceDialog() {
         setContentPane(contentPane);
@@ -64,7 +66,7 @@ public class AddPlaceDialog extends JDialog {
         System.exit(0);
     }
 
-    public void setPlaceListener(final AddPlaceListener placeListener) {
+    public void setPlaceListener(final GUI.AddPlaceListener placeListener) {
         this.placeListener = placeListener;
     }
 }

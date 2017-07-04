@@ -1,11 +1,11 @@
-import java.util.ArrayList;
+package com.enihsyou.TourCollection;
 
 public class Tourist {
     final private String code; // 3位编号
     final private String name; // 姓名
     final private Gender gender; // 性别
     final private int age; // 年龄
-    final private ArrayList<Tour> tours = new ArrayList<>(); // 参与的旅行团
+    final private SinglyLinkedList<Tour> tours = new SinglyLinkedList<>(); // 参与的旅行团
 
     public Tourist(final String code, final String name, final Gender gender, final int age) {
         this.code = code;
@@ -47,9 +47,8 @@ public class Tourist {
     public boolean hasCollision(Tour trip) {
         for (int i = 0; i < tours.size(); i++) {
             Tour tour = tours.get(i);
-            if (tour.getDepartTime().equals(trip.getDepartTime())) {
+            if (tour.getDeparture().equals(trip.getDeparture()))
                 return true;
-            }
         }
         return false;
     }

@@ -1,3 +1,5 @@
+package com.enihsyou.TourCollection;
+
 /**
  * 固定大小的数组，为避免泛型数组的错误
  * 内部由小到大排列

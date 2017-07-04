@@ -1,8 +1,11 @@
+package com.enihsyou.TourCollection;
+
 public class SinglyLinkedList<Item> {
     private SinglyNode<Item> head;
     private int count;
 
-    public SinglyLinkedList() { }
+    public SinglyLinkedList() {
+    }
 
     public static void main(String[] args) {
         SinglyLinkedList<Integer> linkedList = new SinglyLinkedList<>();
@@ -13,10 +16,20 @@ public class SinglyLinkedList<Item> {
         System.out.println(linkedList);
     }
 
-    public void add(final Item item) {
-        if (item == null) { throw new NullPointerException(); }
+    /**
+     * 在头部进行插入，不允许null元素
+     *
+     * @param item 要插入的元素
+     * @return 是否插入成功
+     */
+    public boolean add(final Item item) {
+        if (item == null) {
+//            throw new NullPointerException();
+            return false; // null 插入不允许
+        }
         head = new SinglyNode<>(item, head);
         count++;
+        return true;
     }
 
     public void remove(final Item tourist) {
@@ -40,28 +53,38 @@ public class SinglyLinkedList<Item> {
         return item;
     }
 
+    /**
+     * 检查位置是否存在元素
+     *
+     * @param index 位置
+     */
     private void checkElementIndex(final int index) {
-        if (!isElementIndex(index)) { throw new IndexOutOfBoundsException(); }
+        if (!(index >= 0 && index < count))
+            throw new IndexOutOfBoundsException("越界");
     }
 
     public Item popFirst() {
-        if (head == null) { throw new ArrayIndexOutOfBoundsException(); }
+        if (head == null)
+            throw new ArrayIndexOutOfBoundsException("链表为空");
+
         final Item item = head.getItem();
         head = head.getNextNode();
         count--;
         return item;
     }
 
+    /**
+     * 获取第i个节点，确保调用时index存在
+     *
+     * @param index 第几个
+     * @return 节点
+     */
     private SinglyNode<Item> node(final int index) {
         SinglyNode<Item> head = this.head;
         for (int i = 0; i < index; i++) {
             head = head.getNextNode();
         }
         return head;
-    }
-
-    private boolean isElementIndex(final int index) {
-        return index >= 0 && index < count;
     }
 
     public int size() {
@@ -75,14 +98,29 @@ public class SinglyLinkedList<Item> {
     public boolean contains(final Item o) {
         SinglyNode<Item> head = this.head;
         for (int i = 0; i < count; i++) {
-            if (head.getItem().equals(o)) { return true; }
+            if (head.getItem().equals(o)) {
+                return true;
+            }
             head = head.getNextNode();
         }
         return false;
     }
 
     public void clear() {
-        while (head != null) { popFirst(); }
+        while (head != null) {
+            popFirst();
+        }
+    }
+
+    public int indexOf(final Item item) {
+        SinglyNode<Item> head = this.head;
+        for (int i = 0; i < count; i++) {
+            if (head.getItem().equals(item)) {
+                return i;
+            }
+            head = head.getNextNode();
+        }
+        return -1;
     }
 
     public Item get(final int index) {
@@ -102,42 +140,59 @@ public class SinglyLinkedList<Item> {
         prev.setNextNode(new_node);
     }
 
+    /**
+     * 检查是否是可插入位置
+     *
+     * @param index 位置
+     */
     private void checkPositionIndex(final int index) {
-        if (!isPositionIndex(index)) { throw new IndexOutOfBoundsException(); }
+        if (!(index >= 0 && index <= count))
+            throw new IndexOutOfBoundsException("越界");
     }
 
-    private boolean isPositionIndex(final int index) {
-        return index >= 0 && index <= count;
+    @Override
+    public String toString() {
+        int iMax = count;
+        if (head == null || iMax == 0)
+            return "[]";
+
+        StringBuilder b = new StringBuilder();
+        b.append('[');
+        SinglyNode<Item> node = this.head;
+        for (int i = 0; i <= iMax; i++) {
+            if (node.nextNode == null) {
+                b.append(node.item);
+                return b.append(']').toString();
+            }
+            b.append(", ");
+            b.append(node.item);
+        }
+        return b.append(']').toString();
     }
 
     final static private class SinglyNode<T> {
         private SinglyNode<T> nextNode;
         private T item;
 
-        public SinglyNode(final T item) {
-            this.item = item;
-        }
-
-        public SinglyNode(final T item, final SinglyNode<T> next_node) {
+        SinglyNode(final T item, final SinglyNode<T> next_node) {
             this.nextNode = next_node;
             this.item = item;
         }
 
-        public SinglyNode<T> getNextNode() {
+        SinglyNode<T> getNextNode() {
             return nextNode;
         }
 
-        public void setNextNode(final SinglyNode<T> nextNode) {
+        void setNextNode(final SinglyNode<T> nextNode) {
             this.nextNode = nextNode;
         }
 
-        public T getItem() {
+        T getItem() {
             return item;
         }
 
-        public void setItem(final T item) {
+        void setItem(final T item) {
             this.item = item;
         }
-
     }
 }

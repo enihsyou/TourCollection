@@ -1,3 +1,5 @@
+package com.enihsyou.TourCollection;
+
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -12,7 +14,7 @@ public class MakeCharacterDialog extends JDialog {
     private JRadioButton maleRadioButton;
     private JRadioButton femaleRadioButton;
     private JTextField guestCode;
-    private JoinGroupListener joinGroupListener;
+    private GUI.JoinGroupListener joinGroupListener;
 
     public MakeCharacterDialog() {
         setContentPane(contentPane);
@@ -70,7 +72,7 @@ public class MakeCharacterDialog extends JDialog {
         System.exit(0);
     }
 
-    public void setJoinListener(final JoinGroupListener joinGroupListener) {
+    public void setJoinListener(final GUI.JoinGroupListener joinGroupListener) {
         this.joinGroupListener = joinGroupListener;
     }
 

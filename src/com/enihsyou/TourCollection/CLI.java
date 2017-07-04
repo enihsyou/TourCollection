@@ -1,5 +1,6 @@
+package com.enihsyou.TourCollection;
+
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class CLI {
@@ -16,17 +17,17 @@ public class CLI {
         tourists.add(new Tourist("006", "f", Gender.FEMALE, 6));
         tourists.add(new Tourist("007", "g", Gender.FEMALE, 7));
         tourists.add(new Tourist("008", "h", Gender.FEMALE, 8));
-        tree.insertOrReplace(new Tour("A", new Date(1, 2, 3)));
-        tree.insertOrReplace(new Tour("B", new Date(1, 2, 3)));
-        tree.insertOrReplace(new Tour("C", new Date(1, 2, 4)));
-        tree.insertOrReplace(new Tour("D", new Date(1, 2, 5)));
+        tree.insertOrReplace(new Tour("北京", new Date(1, 2, 3)));
+        tree.insertOrReplace(new Tour("上海", new Date(1, 2, 3)));
+        tree.insertOrReplace(new Tour("长春", new Date(1, 2, 4)));
+        tree.insertOrReplace(new Tour("狮子山", new Date(1, 2, 5)));
         printMenu();
         while (true) {
             try {
                 choiceMenu();
             } catch (NumberFormatException ignored) {
                 System.err.println("无法解析的输入");
-            } catch (IOException ignored) {
+            } catch (Exception ignored) {
                 System.err.println("I/O错误出现");
             } finally {
                 printMenu();
@@ -45,7 +46,7 @@ public class CLI {
         System.out.println("9. 退出");
     }
 
-    private void choiceMenu() throws IOException {
+    private void choiceMenu() throws Exception {
         final int ch = getInteger(() -> {
             System.out.print("输入菜单选项：");
             return parseInteger();
@@ -74,16 +75,16 @@ public class CLI {
         }
     }
 
-    static private int getInteger(Produce<Integer> a) throws IOException {
+    static private int getInteger(Produce<Integer> a) throws Exception {
         return a.produce();
     }
 
-    private int parseInteger() throws IOException {
+    private int parseInteger() throws Exception {
         final String s = stream.readLine().trim();
         return Integer.parseInt(s);
     }
 
-    private void newTour() throws IOException {
+    private void newTour() throws Exception {
         final Tour tour = makeTour();
         if (!tree.has(tour))
             tree.insertOrReplace(tour);
@@ -91,7 +92,7 @@ public class CLI {
             System.err.println("已存在相同的旅行团");
     }
 
-    private void newTourist() throws IOException {
+    private void newTourist() throws Exception {
         final Tourist tourist = makeTourist();
         if (!tourists.contains(tourist))
             tourists.add(tourist);
@@ -99,7 +100,14 @@ public class CLI {
             System.err.println("已存在相同的旅客");
     }
 
-    private void joinGroup() throws IOException {
+    /**
+     * 游客参团
+     * 先指定游客序号再指定旅行团序号，对不存在的序号什么也不做，如果时间冲突给出错误
+     * 如果当前旅行团人数大于6人，无法参团，给出有剩余额度的旅行团
+     *
+     * @throws Exception IOException
+     */
+    private void joinGroup() throws Exception {
         final int tourist_index = getInteger(() -> {
             System.out.print("输入旅客序号：");
             return parseInteger() - 1;
@@ -117,8 +125,8 @@ public class CLI {
             return;
         }
 
-        final Tourist tourist = tourists.get(tourist_index);
         final Tour tour = tree.getIndex(trip_index);
+        final Tourist tourist = tourists.get(tourist_index);
         if (tour.contain(tourist)) {
             System.err.println("旅客已经加入了");
         } else if (tour.getGuestsCount() >= 6) {
@@ -138,7 +146,13 @@ public class CLI {
         }
     }
 
-    private void leaveGroup() throws IOException {
+    /**
+     * 游客退团
+     * 先指定游客序号再指定旅行团序号，对不存在的序号什么也不做，游客如果不在指定的旅行团里也不做
+     * 如果当前旅行团人数小于等于3人，退出会连同旅行团一起删除，给出有剩余额度的旅行团
+     * @throws Exception IOException
+     */
+    private void leaveGroup() throws Exception {
         final int tourist_index = getInteger(() -> {
             System.out.print("输入旅客序号：");
             return parseInteger() - 1;
@@ -155,18 +169,14 @@ public class CLI {
             System.err.println("没有这个序号的旅行团");
             return;
         }
-        final Tourist tourist = tourists.get(tourist_index);
         final Tour tour = tree.getIndex(trip_index);
+        final Tourist tourist = tourists.get(tourist_index);
         if (!tour.contain(tourist)) {
             System.err.println("旅客本来就没加入");
         } else if (tour.getGuestsCount() <= 3) {
             System.err.format("%s已经少于3人，提供有剩余额度的旅行团，删除该团\n", tour);
             // 删除该团
-            for (int i = 0; i < tour.getGuestsCount(); i++) {
-                final Tourist guest = tour.getGuest(i);
-                guest.removeTour(tour);
-            }
-            tree.delete(tour);
+            removeTour(tour);
 
             SinglyLinkedList<Tour> list = new SinglyLinkedList<>();
             tree.ascend(item -> {
@@ -183,7 +193,11 @@ public class CLI {
 
     }
 
-    private void cancelTour() throws IOException {
+    /**
+     * 移除旅行团，从树中删除节点，同时把旅客释放
+     * @throws Exception IOException
+     */
+    private void cancelTour() throws Exception {
         final int trip_index = getInteger(() -> {
             System.out.print("输入要移除的旅行团序号：");
             return parseInteger() - 1;
@@ -193,7 +207,10 @@ public class CLI {
             return;
         }
 
-        final Tour tour = tree.getIndex(trip_index);
+        removeTour(tree.getIndex(trip_index));
+    }
+
+    private void removeTour(Tour tour) {
         for (int i = 0; i < tour.getGuestsCount(); i++) {
             final Tourist guest = tour.getGuest(i);
             guest.removeTour(tour);
@@ -201,6 +218,13 @@ public class CLI {
         tree.delete(tour);
     }
 
+    /**
+     * 展示当前状态
+     * 先输出内部存储结构，调用自带的print方法
+     * 如果有旅行团便输出，旅行团中若有已参加的游客，输出它的状态，序号按顺序从1开始
+     * 如果有游客便输出，游客中若有已参加的旅行团，输出它的状态，序号按顺序从1开始，而不是编号
+     * 最后输出总的旅行团和游客数量
+     */
     private void printStatus() {
         System.out.println("存储结构：");
         tree.print();
@@ -211,8 +235,8 @@ public class CLI {
                 final Tour tour = tree.getIndex(i);
                 if (tour.getGuestsCount() > 0)
                     System.out.println(
-                        String.format("序号%d  %s\n    下列游客已参加：%s\n    共计%d人\n", i + 1, tour, tour.getGuestsString(),
-                            tour.getGuestsCount()));
+                            String.format("序号%d  %s\n    下列游客已参加：%s\n    共计%d人\n", i + 1, tour, tour.getGuestsString(),
+                                    tour.getGuestsCount()));
                 else
                     System.out.format("序号%d  %s\n", i + 1, tour);
             }
@@ -224,7 +248,7 @@ public class CLI {
                 final Tourist tourist = tourists.get(i);
                 if (tourist.getTourCount() > 0)
                     System.out.println(String.format("序号%d  %s\n    已参加下列旅行团：%s\n    共计%d个\n", i + 1, tourist,
-                        tourist.getToursString(), tourist.getTourCount()));
+                            tourist.getToursString(), tourist.getTourCount()));
                 else
                     System.out.format("序号%d  %s\n", i + 1, tourist);
             }
@@ -233,15 +257,23 @@ public class CLI {
         System.out.format("总计旅行团%d；总计旅客%d\n", tree.elementCount(), tourists.size());
     }
 
-    private Tour makeTour() throws IOException {
+    private Tour makeTour() throws Exception {
         final String where = getString(() -> {
             System.out.print("输入旅行团名称：");
-            return stream.readLine();
+            return stream.readLine().trim();
         });
         return new Tour(where, makeDate());
     }
 
-    private Tourist makeTourist() throws IOException {
+    /**
+     * 创建游客对象，包含编号、姓名、性别和年龄字段
+     * 确保输入的编号为三位的数字和字母组合，否则设置为当前人数+1，不对编号重叠性进行检测和纠正
+     * 输入文本前后的空格会被裁减移除掉
+     *
+     * @return 新建的Tourist对象
+     * @throws Exception IOException
+     */
+    private Tourist makeTourist() throws Exception {
         final String code = getString(() -> {
             System.out.print("输入三位编号:");
             final String s = stream.readLine().trim();
@@ -267,6 +299,11 @@ public class CLI {
         return new Tourist(code, name, gender, age);
     }
 
+    /**
+     * 打印列表中的元素，显示有剩余额度的量，使用定值6去减，必须确保数量小于6 否则会出现负数
+     *
+     * @param list 要展示的链表
+     */
     private void printMore(final SinglyLinkedList<Tour> list) {
         for (int i = 0; i < list.size(); i++) {
             final Tour tour = list.get(i);
@@ -274,11 +311,17 @@ public class CLI {
         }
     }
 
-    static private String getString(Produce<String> a) throws IOException {
+    static private String getString(Produce<String> a) throws Exception {
         return a.produce();
     }
 
-    private Date makeDate() throws IOException {
+    /**
+     * 创建日期对象，不对输入值进行检测和纠正
+     *
+     * @return 新的Date对象
+     * @throws Exception IOException
+     */
+    private Date makeDate() throws Exception {
         final int year = getInteger(() -> {
             System.out.print("输入出发年份：");
             return parseInteger();
@@ -294,11 +337,16 @@ public class CLI {
         return new Date(year, month, day);
     }
 
-    static private Gender getGender(Produce<Gender> a) throws IOException {
+    static private Gender getGender(Produce<Gender> a) throws Exception {
         return a.produce();
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         new CLI();
+    }
+
+    @FunctionalInterface
+    public interface Produce<K> {
+        K produce() throws Exception;
     }
 }

@@ -1,3 +1,5 @@
+package com.enihsyou.TourCollection;
+
 /**
  * 对数组进行包装，添加一些便捷的方法，内部不限定元素顺序，但是元素之间紧缩无null
  *

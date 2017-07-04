@@ -1,4 +1,4 @@
-import java.util.LinkedList;
+package com.enihsyou.TourCollection;
 
 public interface Tree<K extends Comparable<K>> {
     /**
@@ -34,7 +34,7 @@ public interface Tree<K extends Comparable<K>> {
      */
     K getNodeItem(final K search_key);
 
-    LinkedList<K> keys(Direction direction);
+    SinglyLinkedList<K> keys(Direction direction);
 
     /**
      * 从树中删除键，如果不存在则什么也不做
@@ -158,6 +158,16 @@ public interface Tree<K extends Comparable<K>> {
         abstract K min();
 
         abstract K max();
+    }
+
+    /**
+     * 对K进行操作，并决定是否继续迭代
+     *
+     * @param <K> 节点类型
+     */
+    @FunctionalInterface
+    interface ItemIterator<K> {
+        boolean accept(K item);
     }
 }
 

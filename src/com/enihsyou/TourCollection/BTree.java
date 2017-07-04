@@ -1,4 +1,4 @@
-import java.util.LinkedList;
+package com.enihsyou.TourCollection;
 
 public class BTree<K extends Comparable<K>> implements Tree<K> {
     /**
@@ -83,8 +83,8 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
     }
 
     @Override
-    public LinkedList<K> keys(final Direction direction) {
-        final LinkedList<K> list = new LinkedList<>();
+    public SinglyLinkedList<K> keys(final Direction direction) {
+        final SinglyLinkedList<K> list = new SinglyLinkedList<>();
         switch (direction) {
             case ASCEND:
                 ascend(list::add);
@@ -93,15 +93,14 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
                 descend(list::add);
                 return list;
             default:
-                throw new RuntimeException();
+                throw new IllegalArgumentException("不正确的类型");
         }
     }
 
     @Override
     public K delete(final K delete_key) {
-        if (delete_key == null) {
+        if (delete_key == null)
             throw new IllegalArgumentException("删除键不能为null");
-        }
         return deleteItem(delete_key, RemoveType.REMOVE_ITEM);
     }
 
@@ -175,6 +174,10 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
         return root.max();
     }
 
+    public K getIndex(final int i) {
+        return keys(Direction.ASCEND).get(i);
+    }
+
     private K deleteItem(final K delete_key, final RemoveType remove_type) {
         /*空树，什么也不用做*/
         if (root == null || root.keys.length() == 0)
@@ -189,10 +192,6 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
             root = root.children.get(0);
         }
         return result;
-    }
-
-    public K getIndex(final int i) {
-        return keys(Direction.ASCEND).get(i);
     }
 
     public enum RemoveType {
