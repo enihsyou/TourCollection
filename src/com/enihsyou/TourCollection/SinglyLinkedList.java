@@ -39,6 +39,7 @@ public class SinglyLinkedList<Item> {
         checkElementIndex(index);
         if (index == 0)
             return popFirst();
+
         final SinglyNode<Item> prev = node(index - 1);
         final Item item = prev.nextNode.item;
         prev.nextNode = prev.nextNode.nextNode;
@@ -103,10 +104,9 @@ public class SinglyLinkedList<Item> {
 
     public int indexOf(final Item item) {
         SinglyNode<Item> head = this.head;
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++, head = head.nextNode) {
             if (head.item.equals(item))
                 return i;
-            head = head.nextNode;
         }
         return -1;
     }

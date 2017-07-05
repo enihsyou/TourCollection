@@ -68,6 +68,7 @@ public class ListArray<T> implements Array<T> {
         rangeCheck2(index);
         if (length == ARRAY_SIZE)
             throw new ArrayIndexOutOfBoundsException("数组已满");
+
         System.arraycopy(elementData, index, elementData, index + 1, length - index);
         elementData[index] = insert_item;
         length++;
@@ -109,6 +110,7 @@ public class ListArray<T> implements Array<T> {
         rangeCheck(index);
         if (length == 0)
             throw new ArrayIndexOutOfBoundsException("数组为空");
+
         final Object result = elementData[index];
         System.arraycopy(elementData, index + 1, elementData, index, length - 1 - index);
         elementData[--length] = null;

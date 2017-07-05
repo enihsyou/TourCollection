@@ -147,7 +147,7 @@ public interface Tree<K extends Comparable<K>> {
      */
     K max();
 
-     K getIndex(final int i);
+    K getIndex(final int i);
     enum Direction {
         ASCEND, DESCEND
     }

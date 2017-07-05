@@ -133,6 +133,7 @@ public class CLI {
             System.err.println("没有这个序号的游客");
             return;
         }
+
         final int trip_index = getInteger(() -> {
             System.out.print("输入要参加的旅行团序号：");
             return parseInteger() - 1;
@@ -144,6 +145,7 @@ public class CLI {
 
         final Tour tour = tree.getIndex(trip_index);
         final Tourist tourist = tourists.get(tourist_index);
+
         if (tour.contain(tourist)) {
             System.err.println("旅客已经加入了");
         } else if (tour.getGuestsCount() >= 6) {
@@ -179,6 +181,7 @@ public class CLI {
             System.err.println("没有这个序号的游客");
             return;
         }
+
         final int trip_index = getInteger(() -> {
             System.out.print("输入要退出的旅行团序号：");
             return parseInteger() - 1;
@@ -187,6 +190,7 @@ public class CLI {
             System.err.println("没有这个序号的旅行团");
             return;
         }
+
         final Tour tour = tree.getIndex(trip_index);
         final Tourist tourist = tourists.get(tourist_index);
         if (!tour.contain(tourist)) {
@@ -200,14 +204,15 @@ public class CLI {
                 return true;
             });
             printMore(list);
+
             final int ch = getInteger(() -> {
                 System.out.print("是否要退出？（1代表是，其他代表否）：");
                 return parseInteger();
             });
             // 删除该团
             if (ch == 1) {
-                removeTour(tour);
                 System.out.println("退出并删除旅行团，同行其他旅客也一并退出");
+                removeTour(tour);
             }
         } else {
             tour.removeGuest(tourist);

@@ -1,5 +1,12 @@
 package com.enihsyou.TourCollection;
 
+/**
+ * B-Tree实现，Google的Go语言版本用Java语言实现
+ * https://github.com/google/btree
+ * https://github.com/enihsyou/TourCollection
+ * 源代码协议Apache License 2.0
+ * @param <K> 存储的类型，需要可比较
+ */
 public class BTree<K extends Comparable<K>> implements Tree<K> {
     /**
      * 一棵B-Tree节点度数，节点最少的子节点数量children数量
@@ -10,7 +17,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
      */
     static private int LOWER_BOUND = DEGREE - 1;
     /**
-     * 包括根节点在内的所有节点，都至多包含的键ket数
+     * 包括根节点在内的所有节点，都至多包含的键key数
      */
     static private int UPPER_BOUND = DEGREE * 2 - 1;
     /**
@@ -68,6 +75,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
             final BNode.SplitResult split_result = root.split(UPPER_BOUND / 2);
             BNode old_root = this.root;
             root = new BNode();
+
             root.keys.append(split_result.grow_up_key);
             root.children.append(old_root);
             root.children.append(split_result.new_child_node);
@@ -85,6 +93,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
     public K getValue(final K search_key) {
         if (search_key == null)
             throw new NullPointerException("查询键不能为null");
+
         return root.get(search_key);
     }
 
@@ -92,6 +101,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
     public K getNodeItem(final K search_key) {
         if (search_key == null)
             throw new NullPointerException("查询键不能为null");
+
         return root.get(search_key);
     }
 
@@ -114,6 +124,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
     public K delete(final K delete_key) {
         if (delete_key == null)
             throw new IllegalArgumentException("删除键不能为null");
+
         return deleteItem(delete_key, RemoveType.REMOVE_ITEM);
     }
 
@@ -203,6 +214,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
         /*如果删除后 根节点变空了，抓取子节点上来*/
         if (root.keys.length() == 0 && root.children.length() > 0)
             root = root.children.get(0);
+
         return result;
     }
 
@@ -238,6 +250,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
         private SplitResult split(int index) {
             final K item = this.keys.get(index);
             final BNode next = new BNode();
+
             next.keys.append(this.keys, index + 1);
             this.keys.truncate(index);
             /*如果有存在子节点，重分配*/
@@ -245,6 +258,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
                 next.children.append(this.children, index + 1);
                 this.children.truncate(index + 1);
             }
+
             return new SplitResult(item, next);
         }
 
@@ -261,8 +275,10 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
                 return false;
 
             final SplitResult split_result = child_node.split(UPPER_BOUND / 2);
+
             keys.insertAt(index, split_result.grow_up_key);
             children.insertAt(index + 1, split_result.new_child_node);
+
             return true;
         }
 
@@ -328,11 +344,13 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
             if (find_result.isFound()) {
                 final K original_value = keys.get(i);
                 keys.replace(i, insert_key);
+
                 return original_value;
             }
             /*当前是叶子节点，没有子节点，在合适的有序位置插入*/
             if (children.length() == 0) {
                 keys.insertAt(i, insert_key);
+
                 return null;
             }
             /*在内部中间节点发现了指定键，检查是否需要分裂*/
@@ -377,6 +395,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
                     Array.FindResult find_result = keys.find(key);
                     i = find_result.getPosition();
                     is_found = find_result.isFound();
+
                     if (children.length() == 0)
                         return is_found ? keys.removeAt(i) : key;
                     break;
@@ -409,11 +428,11 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
          * A) 节点有足够的元素，能够禁得起删掉一个
          * B) 节点如果再少一个就不满足 > LOWER_BOUND的限制了
          * 对于B情况，需要检查
-         * hit) 左兄弟是否能拿一个过来
-         * ok) 有兄弟是否能拿一个过来
+         * a) 左兄弟是否能拿一个过来
+         * b) 有兄弟是否能拿一个过来
          * c) 左右都没有，需要进行合并
          * 为了简化代码，把情况1和情况2做相同处理：
-         * 如果一个节点元素不足够多，那就去确保它变得足够多（处理情况a,ok,c）
+         * 如果一个节点元素不足够多，那就去确保它变得足够多（处理情况a,b,c）
          * 然后就可以简化为重新进行remove操作，然后第二次（不论是情况1还是情况2）能够保证有足够多的
          * 元素在节点中了，这样就能保证解决情况A
          *
@@ -430,6 +449,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
                 K stolen_item = steal_from.keys.popLast();
                 child.keys.rightShift(keys.get(i - 1));
                 keys.replace(i - 1, stolen_item);
+
                 if (steal_from.children.length() > 0)
                     child.children.rightShift(steal_from.children.popLast());
             } else if (i < keys.length() && children.get(i + 1).keys.length() > LOWER_BOUND) {
@@ -438,6 +458,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
                 K stolen_item = steal_from.keys.popFirst();
                 child.keys.append(keys.get(i));
                 keys.replace(i, stolen_item);
+
                 if (steal_from.children.length() > 0)
                     child.children.append(steal_from.children.popFirst());
             } else {
@@ -446,6 +467,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
                 /*和右孩子合并*/
                 final K merge_item = keys.removeAt(i);
                 final BNode merge_child = children.removeAt(i + 1);
+
                 child.keys.append(merge_item);
                 child.keys.append(merge_child.keys, 0);
                 child.children.append(merge_child.children, 0);
