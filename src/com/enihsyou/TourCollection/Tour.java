@@ -39,7 +39,15 @@ public class Tour implements Comparable<Tour> {
 
     @Override
     public int compareTo(final Tour o) {
-        return java.text.Collator.getInstance(java.util.Locale.CHINA).compare(name, o.name);
+        final char[] a = this.name.toCharArray(), b = o.name.toCharArray();
+        int n1 = a.length, n2 = b.length;
+        int min = n1 > n2 ? n2 : n1;
+        for (int i = 0; i < min; i++) {
+            char c1 = a[i], c2 = b[i];
+            if (c1 != c2) return (int) c1 - (int) c2;
+        }
+        return n1 - n2;
+//        return java.text.Collator.getInstance(java.util.Locale.CHINA).compare(name, o.name);
     }
 
     @Override

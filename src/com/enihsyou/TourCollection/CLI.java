@@ -1,11 +1,10 @@
 package com.enihsyou.TourCollection;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.Console;
 
 public class CLI {
-    final private BufferedReader stream = new BufferedReader(new InputStreamReader(System.in));
-    // final private Console stream = System.console();
+//    final private BufferedReader stream = new BufferedReader(new InputStreamReader(System.in));
+     final private Console stream = System.console(); // 最后inline化
     final private BTree<Tour> tree = new BTree<>();
     final private SinglyLinkedList<Tourist> tourists = new SinglyLinkedList<>();
 
@@ -85,8 +84,12 @@ public class CLI {
     }
 
     private int parseInteger() throws Exception {
-        final String s = stream.readLine().trim();
+        final String s = parseString();
         return Integer.parseInt(s);
+    }
+
+    private String  parseString() {
+        return stream.readLine().trim();
     }
 
     private void newTour() throws Exception {
@@ -262,7 +265,7 @@ public class CLI {
     private Tour makeTour() throws Exception {
         final String where = getString(() -> {
             System.out.print("输入旅行团名称：");
-            return stream.readLine().trim();
+            return parseString();
         });
         return new Tour(where, makeDate());
     }
@@ -279,7 +282,7 @@ public class CLI {
     private Tourist makeTourist() throws Exception {
         final String code = getString(() -> {
             System.out.print("输入三位编号:");
-            final String s = stream.readLine().trim();
+            final String s = parseString();
             if (!s.matches("[\\d\\w]{3}")) {
                 final String format = String.format("%03d", tourists.size() + 1);
                 System.err.format("不是三位数字字母编号，设置为%s\n", format);
@@ -289,7 +292,7 @@ public class CLI {
         });
         final String name = getString(() -> {
             System.out.print("输入旅客姓名:");
-            return stream.readLine().trim();
+            return parseString();
         });
         final Gender gender = getGender(() -> {
             System.out.print("是否为男性（1代表是，其他代表否）:");
