@@ -2,9 +2,9 @@ package com.enihsyou.TourCollection;
 
 public class BTree<K extends Comparable<K>> implements Tree<K> {
     /**
-     * 一棵B-Tree节点度数
+     * 一棵B-Tree节点度数，节点最多有用的子节点children数量
      */
-    static private int DEGREE = 2;
+    static private int DEGREE = 3;
     /**
      * 除根节点外，每个节点都至少包含的键数
      */
@@ -12,7 +12,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
     /**
      * 包括根节点在内的所有节点，都至多包含的键数
      */
-    static private int UPPER_BOUND = DEGREE * 2 - 1;
+    static private int UPPER_BOUND = (DEGREE % 2 == 0 ? DEGREE : DEGREE + 1) / 2;
     private BNode root;
     private int count;
 
@@ -21,7 +21,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
     }
 
     public BTree(final int degree) {
-        if (degree < 2)
+        if (degree < 3)
             throw new IllegalArgumentException("B-Tree的节点度数至少为2");
         DEGREE = degree;
         LOWER_BOUND = degree - 1;
@@ -215,7 +215,6 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
          * 将当前节点在指定位置分裂成两个节点。当前节点缩小
          *
          * @param index 分割位置
-         *
          * @return 分裂结果，返回一个二元组，第一个是向上浮的元素key，第二个是包含剩余元素的新节点
          */
         private SplitResult split(int index) {
@@ -235,7 +234,6 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
          * 检查一个子节点是否需要进行split操作，如果需要则进行
          *
          * @param index 预计的分裂位置
-         *
          * @return 是否进行了分裂操作
          */
         private boolean maybeSplitChild(int index) {
@@ -254,7 +252,6 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
          * 在当前节点子树中搜索键
          *
          * @param key 搜索的键
-         *
          * @return 键对应的值，搜索失败为null
          */
         @Override
@@ -304,7 +301,6 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
          * 如果指定元素key已存在，将会被替换
          *
          * @param insert_key 插入键
-         *
          * @return 插入位置上原先存放的元素
          */
         private K insert(K insert_key) {
@@ -343,7 +339,6 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
          *
          * @param key         删除的键
          * @param remove_type 删除类型
-         *
          * @return 被移除的元素
          */
         private K remove(K key, RemoveType remove_type) {
@@ -407,7 +402,6 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
          * @param i           指定位置
          * @param remove_key  移除元素键
          * @param remove_type 删除类型
-         *
          * @return 移除的元素
          */
         private K growChildAndRemove(int i, K remove_key, RemoveType remove_type) {
@@ -455,7 +449,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
                             continue;
                         if (children.length() > 0) {
                             final ResultPair pair = children.get(i)
-                                .iterate(start_key, stop_key, direction, include_start, hit, item_iterator);
+                                    .iterate(start_key, stop_key, direction, include_start, hit, item_iterator);
                             hit = pair.hit;
                             ok = pair.ok;
                             if (!ok)
@@ -473,7 +467,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
                     }
                     if (children.length() > 0) {
                         final ResultPair pair =
-                            children.last().iterate(start_key, stop_key, direction, include_start, hit, item_iterator);
+                                children.last().iterate(start_key, stop_key, direction, include_start, hit, item_iterator);
                         hit = pair.hit;
                         ok = pair.ok;
                         if (!ok)
@@ -487,7 +481,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
                                 continue;
                         if (children.length() > 0) {
                             final ResultPair pair = children.get(i + 1)
-                                .iterate(start_key, stop_key, direction, include_start, hit, item_iterator);
+                                    .iterate(start_key, stop_key, direction, include_start, hit, item_iterator);
                             hit = pair.hit;
                             ok = pair.ok;
                             if (!ok)
@@ -501,7 +495,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
                     }
                     if (children.length() > 0) {
                         final ResultPair pair =
-                            children.first().iterate(start_key, stop_key, direction, include_start, hit, item_iterator);
+                                children.first().iterate(start_key, stop_key, direction, include_start, hit, item_iterator);
                         hit = pair.hit;
                         ok = pair.ok;
                         if (!ok)
