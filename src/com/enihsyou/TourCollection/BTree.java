@@ -2,17 +2,17 @@ package com.enihsyou.TourCollection;
 
 public class BTree<K extends Comparable<K>> implements Tree<K> {
     /**
-     * 一棵B-Tree节点度数，节点最多有用的子节点children数量
+     * 一棵B-Tree节点度数，节点最少的子节点数量children数量
      */
     static private int DEGREE = 3;
     /**
-     * 除根节点外，每个节点都至少包含的键数
+     * 除根节点外，每个节点都至少包含的键key数
      */
     static private int LOWER_BOUND = DEGREE - 1;
     /**
-     * 包括根节点在内的所有节点，都至多包含的键数
+     * 包括根节点在内的所有节点，都至多包含的键ket数
      */
-    static private int UPPER_BOUND = (DEGREE % 2 == 0 ? DEGREE : DEGREE + 1) / 2;
+    static private int UPPER_BOUND = DEGREE * 2 - 1;
     private BNode root;
     private int count;
 
@@ -21,7 +21,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
     }
 
     public BTree(final int degree) {
-        if (degree < 3)
+        if (degree < 2)
             throw new IllegalArgumentException("B-Tree的节点度数至少为2");
         DEGREE = degree;
         LOWER_BOUND = degree - 1;

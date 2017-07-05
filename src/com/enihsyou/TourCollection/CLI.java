@@ -1,10 +1,11 @@
 package com.enihsyou.TourCollection;
 
-import java.io.Console;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class CLI {
-//    final private BufferedReader stream = new BufferedReader(new InputStreamReader(System.in));
-     final private Console stream = System.console(); // 最后inline化
+    final private BufferedReader stream = new BufferedReader(new InputStreamReader(System.in));
+    //    final private Console stream = System.console(); // 最后inline化
     final private BTree<Tour> tree = new BTree<>();
     final private SinglyLinkedList<Tourist> tourists = new SinglyLinkedList<>();
 
@@ -88,7 +89,7 @@ public class CLI {
         return Integer.parseInt(s);
     }
 
-    private String  parseString() {
+    private String parseString() throws Exception {
         return stream.readLine().trim();
     }
 
@@ -183,18 +184,23 @@ public class CLI {
         if (!tour.contain(tourist)) {
             System.err.println("旅客本来就没加入");
         } else if (tour.getGuestsCount() <= 3) {
-            System.err.format("%s已经少于3人，提供有剩余额度的旅行团，删除该团\n", tour);
-            // 删除该团
-            removeTour(tour);
-
+            System.err.format("%s已经少于3人，提供有剩余额度的旅行团\n", tour);
             SinglyLinkedList<Tour> list = new SinglyLinkedList<>();
             tree.ascend(item -> {
-                if (item.getGuestsCount() < 6)
+                if (item.getGuestsCount() < 6 && !item.equals(tour))
                     list.add(item);
                 return true;
             });
             printMore(list);
-
+            final int ch = getInteger(() -> {
+                System.out.print("是否要退出？（1代表是，其他代表否）：");
+                return parseInteger();
+            });
+            // 删除该团
+            if (ch == 1) {
+                removeTour(tour);
+                System.out.println("退出并删除旅行团，同行其他旅客也一并退出");
+            }
         } else {
             tour.removeGuest(tourist);
             tourist.removeTour(tour);
@@ -238,8 +244,8 @@ public class CLI {
                 final Tour tour = tree.getIndex(i);
                 if (tour.getGuestsCount() > 0)
                     System.out.println(
-                        String.format("序号%d  %s\n    下列游客已参加：%s\n    共计%d人\n", i + 1, tour, tour.getGuestsString(),
-                            tour.getGuestsCount()));
+                            String.format("序号%d  %s\n    下列游客已参加：%s\n    共计%d人\n", i + 1, tour, tour.getGuestsString(),
+                                    tour.getGuestsCount()));
                 else
                     System.out.format("序号%d  %s\n", i + 1, tour);
             }
@@ -252,7 +258,7 @@ public class CLI {
                 final Tourist tourist = tourists.get(i);
                 if (tourist.getTourCount() > 0)
                     System.out.println(String.format("序号%d  %s\n    已参加下列旅行团：%s\n    共计%d个\n", i + 1, tourist,
-                        tourist.getToursString(), tourist.getTourCount()));
+                            tourist.getToursString(), tourist.getTourCount()));
                 else
                     System.out.format("序号%d  %s\n", i + 1, tourist);
             }
@@ -276,7 +282,6 @@ public class CLI {
      * 输入文本前后的空格会被裁减移除掉
      *
      * @return 新建的Tourist对象
-     *
      * @throws Exception IOException
      */
     private Tourist makeTourist() throws Exception {
@@ -334,7 +339,6 @@ public class CLI {
      * 创建日期对象，不对输入值进行检测和纠正
      *
      * @return 新的Date对象
-     *
      * @throws Exception IOException
      */
     private Date makeDate() throws Exception {
