@@ -6,25 +6,33 @@ import java.io.InputStreamReader;
 public class CLI {
     final private BufferedReader stream = new BufferedReader(new InputStreamReader(System.in));
     //    final private Console stream = System.console(); // 最后inline化
-    final private BTree<Tour> tree = new BTree<>();
-    final private SinglyLinkedList<Tourist> tourists = new SinglyLinkedList<>();
+    /**
+     * B-Tree类型结构用于保存所有旅行团相关数据
+     */
+    final private Tree<Tour> tree;
+    /**
+     * 单链表保存这个类使用的已添加的游客的信息
+     */
+    final private SinglyLinkedList<Tourist> tourists;
 
     private CLI() {
-        tourists.add(new Tourist("001", "雨天", Gender.FEMALE, 1));
-        tourists.add(new Tourist("002", "反而更", Gender.FEMALE, 2));
-        tourists.add(new Tourist("003", "个", Gender.FEMALE, 3));
-        tourists.add(new Tourist("004", "衣服放", Gender.FEMALE, 4));
-        tourists.add(new Tourist("005", "把房产税", Gender.FEMALE, 5));
-        tourists.add(new Tourist("006", "内存", Gender.FEMALE, 6));
-        tourists.add(new Tourist("007", "脦", Gender.FEMALE, 7));
-        tourists.add(new Tourist("008", "问题", Gender.FEMALE, 8));
-        tree.insertOrReplace(new Tour("北京", new Date(1, 2, 3)));
-        tree.insertOrReplace(new Tour("上海", new Date(1, 2, 3)));
-        tree.insertOrReplace(new Tour("长春", new Date(1, 2, 4)));
-        tree.insertOrReplace(new Tour("狮子", new Date(1, 2, 5)));
-        tree.insertOrReplace(new Tour("打脸", new Date(1, 3, 5)));
-        tree.insertOrReplace(new Tour("吉林", new Date(2, 2, 5)));
-        tree.insertOrReplace(new Tour("黄山", new Date(1, 2, 1)));
+        tree = new BTree<>();
+        tourists = new SinglyLinkedList<>();
+        tourists.add(new Tourist("001", "游客A", Gender.FEMALE, 1));
+        tourists.add(new Tourist("002", "游客B", Gender.FEMALE, 2));
+        tourists.add(new Tourist("003", "游客C", Gender.FEMALE, 3));
+        tourists.add(new Tourist("004", "游客D", Gender.FEMALE, 4));
+        tourists.add(new Tourist("005", "游客E", Gender.FEMALE, 5));
+        tourists.add(new Tourist("006", "游客F", Gender.FEMALE, 6));
+        tourists.add(new Tourist("007", "游客G", Gender.FEMALE, 7));
+        tourists.add(new Tourist("008", "游客H", Gender.FEMALE, 8));
+        tree.insertOrReplace(new Tour("北京", new Date(2017, 7, 3)));
+        tree.insertOrReplace(new Tour("上海", new Date(2017, 7, 3)));
+        tree.insertOrReplace(new Tour("长春", new Date(2017, 7, 4)));
+        tree.insertOrReplace(new Tour("狮子", new Date(2017, 7, 5)));
+        tree.insertOrReplace(new Tour("大连", new Date(2017, 7, 5)));
+        tree.insertOrReplace(new Tour("吉林", new Date(2017, 7, 5)));
+        tree.insertOrReplace(new Tour("黄山", new Date(2017, 7, 1)));
         printMenu();
         while (true) {
             try {
@@ -69,8 +77,8 @@ public class CLI {
             case 4: // 旅客退团
                 leaveGroup();
                 break;
-            case 5:
-                cancelTour(); // 删除旅行团
+            case 5: // 删除旅行团
+                cancelTour();
                 break;
             case 6: // 打印状态
                 printStatus();
@@ -366,7 +374,7 @@ public class CLI {
     }
 
     @FunctionalInterface
-    public interface Produce<K> {
+    private interface Produce<K> {
         K produce() throws Exception;
     }
 }

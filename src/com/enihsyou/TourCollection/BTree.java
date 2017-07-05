@@ -13,13 +13,25 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
      * 包括根节点在内的所有节点，都至多包含的键ket数
      */
     static private int UPPER_BOUND = DEGREE * 2 - 1;
+    /**
+     * 树的根节点
+     */
     private BNode root;
+    /**
+     * 树中元素数量，每次插入和删除都会修改这个值，如果替换元素并不会修改数量大小
+     */
     private int count;
 
     public BTree() {
         root = new BNode();
     }
 
+    /**
+     * 使用指定的度树创建B-Tree，度的定义是每个节点包含的最少子节点数量
+     * 元素(key)的数量是这个数值-1，最大子节点数量是这个数值的两倍-1
+     *
+     * @param degree 指定的树度树
+     */
     public BTree(final int degree) {
         if (degree < 2)
             throw new IllegalArgumentException("B-Tree的节点度数至少为2");
@@ -29,6 +41,12 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
         root = new BNode();
     }
 
+    /**
+     * 简单地创建重复一定次数的字符串，用于空白填充
+     *
+     * @param times 重复次数
+     * @return 生成的字符串
+     */
     private static String repeatString(final int times) {
         final char[] chars = new char[times];
         for (int i = 0; i < times; i++)
@@ -201,7 +219,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
         }
     }
 
-    final class BNode extends TreeNode<K> {
+    final private class BNode extends TreeNode<K> {
         /**
          * 存储元素的键，作为主搜索键
          */
@@ -517,7 +535,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
             return keys.toString();
         }
 
-        class SplitResult {
+        private class SplitResult {
             K grow_up_key;
             BNode new_child_node;
 
