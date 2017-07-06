@@ -5,6 +5,7 @@ package com.enihsyou.TourCollection;
  * https://github.com/google/btree
  * https://github.com/enihsyou/TourCollection
  * 源代码协议Apache License 2.0
+ *
  * @param <K> 存储的类型，需要可比较
  */
 public class BTree<K extends Comparable<K>> implements Tree<K> {
@@ -28,6 +29,15 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
      * 树中元素数量，每次插入和删除都会修改这个值，如果替换元素并不会修改数量大小
      */
     private int count;
+
+    public static void main(String[] args) {
+        BTree<Integer> tree = new BTree<>();
+        for (int i = 0; i < 29; i++) {
+            tree.insertOrReplace(i);
+        }
+        tree.print();
+        System.out.println();
+    }
 
     public BTree() {
         root = new BNode();
@@ -140,7 +150,7 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
 
     @Override
     public void print() {
-        root.print(0);
+        root.print(0, 0);
     }
 
     @Override
@@ -546,10 +556,10 @@ public class BTree<K extends Comparable<K>> implements Tree<K> {
             return new ResultPair(hit, true);
         }
 
-        private void print(final int level) {
-            System.out.format("%sNODE:%s\n", repeatString(2 * level), keys);
+        private void print(final int j, final int level) {
+            System.out.format("%sNODE%d:%s\n", repeatString(2 * level), j, keys);
             for (int i = 0; i < children.length(); i++)
-                children.get(i).print(level + 1);
+                children.get(i).print(i, level + 1);
         }
 
         @Override
